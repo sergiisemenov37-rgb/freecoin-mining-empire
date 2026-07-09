@@ -1,14 +1,11 @@
 'use client';
 
-import { useState } from 'react';
 import { BottomNavigation } from '@/components/ui/BottomNavigation';
 import { PageLayout } from '@/components/ui/PageLayout';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState('home');
-
   return (
     <>
       <PageLayout>
@@ -49,7 +46,7 @@ export default function Home() {
           </CardContent>
         </Card>
       </PageLayout>
-      <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+      <BottomNavigation />
     </>
   );
 }

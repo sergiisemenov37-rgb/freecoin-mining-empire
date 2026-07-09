@@ -2,18 +2,22 @@
 
 import { PageLayout } from '@/components/ui/PageLayout';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
+import { BottomNavigation } from '@/components/ui/BottomNavigation';
 
 export default function Friends() {
   return (
-    <PageLayout title="Friends">
-      <Card>
-        <CardHeader>
-          <CardTitle>Friends List</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-gray-300">Invite friends and earn bonuses.</p>
-        </CardContent>
-      </Card>
-    </PageLayout>
+    <>
+      <PageLayout title="Friends">
+        <Card>
+          <CardHeader>
+            <CardTitle>Friends List</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-300">Invite friends and earn bonuses.</p>
+          </CardContent>
+        </Card>
+      </PageLayout>
+      <BottomNavigation />
+    </>
   );
 }

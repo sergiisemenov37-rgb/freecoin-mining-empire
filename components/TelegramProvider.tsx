@@ -7,7 +7,7 @@
 
 import { useEffect, useState, ReactNode } from 'react';
 import { useTelegram } from '@/hooks/useTelegram';
-import { useTelegramTheme } from '@/hooks/useTelegramTheme';
+import { getTelegramAuth } from '@/lib/telegram/TelegramAuth';
 
 interface TelegramProviderProps {
   children: ReactNode;
@@ -15,7 +15,6 @@ interface TelegramProviderProps {
 
 export function TelegramProvider({ children }: TelegramProviderProps) {
   const { isReady, isTelegram, user, ready, expand, enableClosingConfirmation } = useTelegram();
-  useTelegramTheme();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -32,7 +31,7 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
     // Authenticate user
     const authenticateUser = async () => {
       try {
-        if (isTelegram) {
+        if (isTelegram && user) {
           // In Telegram, send initData to server for verification
           const initData = window.Telegram?.WebApp.initData;
           if (initData) {
@@ -53,15 +52,12 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
               }
             }
           }
-        }
-        // Browser mode - auto-authenticate (no server call needed)
-        setIsAuthenticated(true);
-      } catch (error) {
-        console.error('Authentication error:', error);
-        // Still authenticate in browser mode even on error
-        if (!isTelegram) {
+        } else {
+          // Browser mode - auto-authenticate with mock user
           setIsAuthenticated(true);
         }
+      } catch (error) {
+        console.error('Authentication error:', error);
       } finally {
         setIsLoading(false);
       }
