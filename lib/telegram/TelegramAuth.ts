@@ -18,11 +18,15 @@ export class TelegramAuth {
    * This ensures the data comes from Telegram and hasn't been tampered with
    */
   verifyInitData(initData: string): boolean {
+    console.log('[TelegramAuth] Verifying initData signature');
     try {
       const urlParams = new URLSearchParams(initData);
       const hash = urlParams.get('hash');
       
+      console.log('[TelegramAuth] Hash present:', !!hash);
+      
       if (!hash) {
+        console.error('[TelegramAuth] No hash found in initData');
         return false;
       }
 
@@ -32,6 +36,8 @@ export class TelegramAuth {
       // Sort parameters alphabetically
       const sortedParams = Array.from(urlParams.entries())
         .sort(([a], [b]) => a.localeCompare(b));
+
+      console.log('[TelegramAuth] Sorted params count:', sortedParams.length);
 
       // Create data check string
       const dataCheckString = sortedParams
@@ -49,10 +55,15 @@ export class TelegramAuth {
         .update(dataCheckString)
         .digest('hex');
 
+      console.log('[TelegramAuth] Computed signature length:', signature.length);
+      console.log('[TelegramAuth] Received hash length:', hash.length);
+
       // Compare signatures in constant time
-      return this.constantTimeCompare(signature, hash);
+      const isValid = this.constantTimeCompare(signature, hash);
+      console.log('[TelegramAuth] Signature valid:', isValid);
+      return isValid;
     } catch (error) {
-      console.error('Error verifying Telegram initData:', error);
+      console.error('[TelegramAuth] Error verifying Telegram initData:', error);
       return false;
     }
   }
@@ -77,7 +88,10 @@ export class TelegramAuth {
    * Parse and validate Telegram initData
    */
   parseInitData(initData: string): TelegramAuthData | null {
+    console.log('[TelegramAuth] Parsing initData');
+    
     if (!this.verifyInitData(initData)) {
+      console.error('[TelegramAuth] Signature verification failed');
       return null;
     }
 
@@ -85,13 +99,17 @@ export class TelegramAuth {
       const urlParams = new URLSearchParams(initData);
       
       const userStr = urlParams.get('user');
+      console.log('[TelegramAuth] User data present:', !!userStr);
+      
       if (!userStr) {
+        console.error('[TelegramAuth] No user data in initData');
         return null;
       }
 
       const user = JSON.parse(userStr);
+      console.log('[TelegramAuth] Parsed user data, telegram_id:', user.id);
 
-      return {
+      const authData = {
         telegram_id: user.id,
         username: user.username || null,
         first_name: user.first_name,
@@ -102,8 +120,11 @@ export class TelegramAuth {
         auth_date: parseInt(urlParams.get('auth_date') || '0'),
         hash: urlParams.get('hash') || '',
       };
+      
+      console.log('[TelegramAuth] Auth data parsed successfully:', authData);
+      return authData;
     } catch (error) {
-      console.error('Error parsing Telegram initData:', error);
+      console.error('[TelegramAuth] Error parsing Telegram initData:', error);
       return null;
     }
   }
