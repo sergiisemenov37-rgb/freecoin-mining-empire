@@ -19,6 +19,9 @@ export interface Database {
           banned_at: string | null
           ban_reason: string | null
           deleted_at: string | null
+          wallet_address: string | null
+          wallet_name: string | null
+          wallet_connected_at: string | null
         }
         Insert: {
           id?: string
@@ -32,6 +35,9 @@ export interface Database {
           banned_at?: string | null
           ban_reason?: string | null
           deleted_at?: string | null
+          wallet_address?: string | null
+          wallet_name?: string | null
+          wallet_connected_at?: string | null
         }
         Update: {
           id?: string
@@ -45,6 +51,9 @@ export interface Database {
           banned_at?: string | null
           ban_reason?: string | null
           deleted_at?: string | null
+          wallet_address?: string | null
+          wallet_name?: string | null
+          wallet_connected_at?: string | null
         }
       }
       player_profiles: {

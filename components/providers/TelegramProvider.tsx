@@ -68,20 +68,16 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
                 localStorage.setItem('telegram_session', JSON.stringify(data.session));
               } else {
                 console.error('[TelegramProvider] API returned success=false:', data.error);
-                // In production, we might want to show an error screen
-                // For now, allow access even if auth fails for debugging
-                console.warn('[TelegramProvider] Allowing access despite auth failure for debugging');
-                setIsAuthenticated(true);
+                // Do not allow access on auth failure
+                setIsAuthenticated(false);
               }
             } else {
               console.error('[TelegramProvider] API request failed:', response.status, response.statusText);
-              console.warn('[TelegramProvider] Allowing access despite API failure for debugging');
-              setIsAuthenticated(true);
+              setIsAuthenticated(false);
             }
           } else {
             console.error('[TelegramProvider] No initData available in Telegram mode');
-            console.warn('[TelegramProvider] This should not happen in real Telegram - allowing access for debugging');
-            setIsAuthenticated(true);
+            setIsAuthenticated(false);
           }
         } else {
           console.log('[TelegramProvider] Running in browser mode - auto-authenticating');
@@ -90,13 +86,13 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
         }
       } catch (error) {
         console.error('[TelegramProvider] Authentication error:', error);
-        // Still authenticate in browser mode even on error
+        // Do not authenticate on error in Telegram mode
         if (!isTelegram) {
           console.log('[TelegramProvider] Browser mode error - still authenticating');
           setIsAuthenticated(true);
         } else {
-          console.error('[TelegramProvider] Telegram mode error - allowing access for debugging');
-          setIsAuthenticated(true);
+          console.error('[TelegramProvider] Telegram режим error - authentication failed');
+          setIsAuthenticated(false);
         }
       } finally {
         console.log('[TelegramProvider] Authentication flow complete, isLoading:', false);
@@ -143,6 +139,51 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
         fontSize: '18px',
       }}>
         Loading...
+      </div>
+    );
+  }
+
+  if (!isAuthenticated && isTelegram) {
+    return (
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '100vh',
+        backgroundColor: '#1a1a2e',
+        color: '#ffffff',
+        fontSize: '18px',
+        padding: '20px',
+        textAlign: 'center',
+      }}>
+        <div style={{
+          backgroundColor: '#ef4444',
+          color: '#ffffff',
+          padding: '20px',
+          borderRadius: '12px',
+          marginBottom: '20px',
+          maxWidth: '400px',
+        }}>
+          <h2 style={{ fontSize: '24px', marginBottom: '10px' }}>Authentication Failed</h2>
+          <p style={{ fontSize: '16px', opacity: 0.9 }}>
+            Unable to verify your Telegram account. Please try again later or contact support.
+          </p>
+        </div>
+        <button
+          onClick={() => window.location.reload()}
+          style={{
+            backgroundColor: '#3b82f6',
+            color: '#ffffff',
+            padding: '12px 24px',
+            borderRadius: '8px',
+            fontSize: '16px',
+            border: 'none',
+            cursor: 'pointer',
+          }}
+        >
+          Retry
+        </button>
       </div>
     );
   }
