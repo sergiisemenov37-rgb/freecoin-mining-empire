@@ -240,6 +240,53 @@ export interface Database {
           updated_at?: string
         }
       }
+      payment_transactions: {
+        Row: {
+          id: string
+          player_id: string
+          method: 'telegram_stars' | 'ton' | 'usdt'
+          type: 'purchase' | 'deposit' | 'withdrawal' | 'subscription'
+          amount: number
+          currency: string
+          status: 'pending' | 'processing' | 'completed' | 'failed' | 'refunded' | 'cancelled'
+          transaction_hash: string | null
+          invoice_url: string | null
+          metadata: Record<string, any> | null
+          created_at: string
+          updated_at: string
+          completed_at: string | null
+        }
+        Insert: {
+          id?: string
+          player_id: string
+          method: 'telegram_stars' | 'ton' | 'usdt'
+          type: 'purchase' | 'deposit' | 'withdrawal' | 'subscription'
+          amount: number
+          currency: string
+          status?: 'pending' | 'processing' | 'completed' | 'failed' | 'refunded' | 'cancelled'
+          transaction_hash?: string | null
+          invoice_url?: string | null
+          metadata?: Record<string, any> | null
+          created_at?: string
+          updated_at?: string
+          completed_at?: string | null
+        }
+        Update: {
+          id?: string
+          player_id?: string
+          method?: 'telegram_stars' | 'ton' | 'usdt'
+          type?: 'purchase' | 'deposit' | 'withdrawal' | 'subscription'
+          amount?: number
+          currency?: string
+          status?: 'pending' | 'processing' | 'completed' | 'failed' | 'refunded' | 'cancelled'
+          transaction_hash?: string | null
+          invoice_url?: string | null
+          metadata?: Record<string, any> | null
+          created_at?: string
+          updated_at?: string
+          completed_at?: string | null
+        }
+      }
     }
     Views: {
       [_ in never]: never

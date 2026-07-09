@@ -1,6 +1,6 @@
 /**
  * Wallet Connect API Route
- * Saves wallet address to Supabase
+ * Saves wallet address to Supabase with primary wallet support
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -10,8 +10,8 @@ export async function POST(request: NextRequest) {
   console.log('[WalletConnectAPI] Wallet connect request received');
   
   try {
-    const { address, walletName } = await request.json();
-    console.log('[WalletConnectAPI] Wallet data:', { address, walletName });
+    const { address, walletName, isPrimary } = await request.json();
+    console.log('[WalletConnectAPI] Wallet data:', { address, walletName, isPrimary });
 
     if (!address) {
       return NextResponse.json(
@@ -20,8 +20,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get session from localStorage equivalent (would need to be sent from client)
-    // For now, we'll get the session from the request
     const sessionHeader = request.headers.get('x-telegram-session');
     let telegramId = null;
     
@@ -69,6 +67,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       player: updatedPlayer,
+      isPrimary,
     });
   } catch (error) {
     console.error('[WalletConnectAPI] Wallet connect error:', error);

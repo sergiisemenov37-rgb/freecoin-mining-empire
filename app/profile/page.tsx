@@ -8,7 +8,7 @@ import { TonConnectButton } from '@tonconnect/ui-react';
 import { useTonConnect } from '@/hooks/useTonConnect';
 
 export default function Profile() {
-  const { connected, formattedAddress, walletName, disconnectWallet } = useTonConnect();
+  const { connected, formattedAddress, walletName, disconnectWallet, walletHistory, primaryWallet, setAsPrimary } = useTonConnect();
 
   return (
     <>
@@ -30,7 +30,12 @@ export default function Profile() {
             {connected ? (
               <div className="space-y-4">
                 <div className="p-4 bg-green-500/10 border border-green-500/30 rounded-xl">
-                  <p className="text-green-400 font-medium mb-1">Connected</p>
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-green-400 font-medium">Connected</p>
+                    {primaryWallet === walletName && (
+                      <span className="text-xs bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded-full">Primary</span>
+                    )}
+                  </div>
                   <p className="text-gray-300 text-sm">Wallet: {walletName}</p>
                   <p className="text-gray-400 text-xs font-mono mt-2">{formattedAddress}</p>
                 </div>
@@ -52,6 +57,39 @@ export default function Profile() {
                   <p className="text-gray-500 text-xs text-center mt-2">
                     Supports: Telegram Wallet, Tonkeeper, MyTonWallet, Tonhub, OpenMask
                   </p>
+                </div>
+              </div>
+            )}
+
+            {walletHistory.length > 0 && (
+              <div className="mt-6 pt-6 border-t border-gray-700">
+                <h3 className="text-white font-medium mb-3">Wallet History</h3>
+                <div className="space-y-2">
+                  {walletHistory.map((wallet, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-3 bg-gray-800/50 rounded-xl"
+                    >
+                      <div>
+                        <p className="text-white text-sm">{wallet.walletName}</p>
+                        <p className="text-gray-400 text-xs font-mono">
+                          {wallet.address.slice(0, 6)}...{wallet.address.slice(-4)}
+                        </p>
+                      </div>
+                      {primaryWallet === wallet.address ? (
+                        <span className="text-xs bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded-full">Primary</span>
+                      ) : (
+                        <Button
+                          onClick={() => setAsPrimary(wallet.address)}
+                          variant="ghost"
+                          size="sm"
+                          className="text-xs"
+                        >
+                          Set Primary
+                        </Button>
+                      )}
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
