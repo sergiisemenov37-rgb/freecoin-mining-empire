@@ -8,14 +8,18 @@ import { getTelegramAuth } from '@/lib/telegram/TelegramAuth';
 import { createServerClientClient } from '@/lib/supabase/client';
 
 export async function POST(request: NextRequest) {
+  console.log('[TelegramAuthAPI] =========================================');
   console.log('[TelegramAuthAPI] Authentication request received');
+  console.log('[TelegramAuthAPI] Request URL:', request.url);
+  console.log('[TelegramAuthAPI] Request method:', request.method);
   
   try {
     const { initData } = await request.json();
     console.log('[TelegramAuthAPI] initData received:', !!initData, 'length:', initData?.length);
+    console.log('[TelegramAuthAPI] initData (first 100 chars):', initData?.substring(0, 100));
 
     if (!initData) {
-      console.error('[TelegramAuthAPI] Missing initData');
+      console.error('[TelegramAuthAPI] ERROR: Missing initData');
       return NextResponse.json(
         { success: false, error: 'Missing initData' },
         { status: 400 }
@@ -23,16 +27,18 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify Telegram initData signature
-    console.log('[TelegramAuthAPI] Parsing initData');
+    console.log('[TelegramAuthAPI] Initializing TelegramAuth');
     const telegramAuth = getTelegramAuth();
+    console.log('[TelegramAuthAPI] TelegramAuth initialized, parsing initData');
     const authData = telegramAuth.parseInitData(initData);
     
     console.log('[TelegramAuthAPI] Auth data parsed:', !!authData, 'telegram_id:', authData?.telegram_id);
 
     if (!authData) {
-      console.error('[TelegramAuthAPI] Invalid Telegram data - parseInitData returned null');
+      console.error('[TelegramAuthAPI] ERROR: Invalid Telegram data - parseInitData returned null');
+      console.error('[TelegramAuthAPI] This means signature verification failed');
       return NextResponse.json(
-        { success: false, error: 'Invalid Telegram data' },
+        { success: false, error: 'Invalid Telegram data - signature verification failed' },
         { status: 401 }
       );
     }
@@ -42,7 +48,7 @@ export async function POST(request: NextRequest) {
     console.log('[TelegramAuthAPI] Auth date valid:', isDateValid, 'auth_date:', authData.auth_date);
     
     if (!isDateValid) {
-      console.error('[TelegramAuthAPI] Expired authentication data');
+      console.error('[TelegramAuthAPI] ERROR: Expired authentication data');
       return NextResponse.json(
         { success: false, error: 'Expired authentication data' },
         { status: 401 }

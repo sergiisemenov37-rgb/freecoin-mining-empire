@@ -19,11 +19,13 @@ export class TelegramAuth {
    */
   verifyInitData(initData: string): boolean {
     console.log('[TelegramAuth] Verifying initData signature');
+    console.log('[TelegramAuth] initData length:', initData.length);
     try {
       const urlParams = new URLSearchParams(initData);
       const hash = urlParams.get('hash');
       
       console.log('[TelegramAuth] Hash present:', !!hash);
+      console.log('[TelegramAuth] Hash value (first 10 chars):', hash?.substring(0, 10));
       
       if (!hash) {
         console.error('[TelegramAuth] No hash found in initData');
@@ -33,22 +35,34 @@ export class TelegramAuth {
       // Remove hash from params for verification
       urlParams.delete('hash');
 
+      // Log all parameters before sorting
+      const allParams = Array.from(urlParams.entries());
+      console.log('[TelegramAuth] All params count:', allParams.length);
+      console.log('[TelegramAuth] All params keys:', allParams.map(([k]) => k).join(', '));
+
       // Sort parameters alphabetically
       const sortedParams = Array.from(urlParams.entries())
         .sort(([a], [b]) => a.localeCompare(b));
 
       console.log('[TelegramAuth] Sorted params count:', sortedParams.length);
+      console.log('[TelegramAuth] Sorted params:', sortedParams.map(([k, v]) => `${k}=<${v.substring(0, 20)}...>`).join(', '));
 
       // Create data check string
       const dataCheckString = sortedParams
         .map(([key, value]) => `${key}=${value}`)
         .join('\n');
 
+      console.log('[TelegramAuth] Data check string length:', dataCheckString.length);
+      console.log('[TelegramAuth] Data check string (first 100 chars):', dataCheckString.substring(0, 100));
+
       // Create HMAC-SHA256 signature
+      console.log('[TelegramAuth] Creating secret key from bot token');
       const secretKey = crypto
         .createHmac('sha256', 'WebAppData')
         .update(this.botToken)
         .digest();
+
+      console.log('[TelegramAuth] Secret key created, length:', secretKey.length);
 
       const signature = crypto
         .createHmac('sha256', secretKey)
@@ -56,11 +70,21 @@ export class TelegramAuth {
         .digest('hex');
 
       console.log('[TelegramAuth] Computed signature length:', signature.length);
+      console.log('[TelegramAuth] Computed signature (first 10 chars):', signature.substring(0, 10));
       console.log('[TelegramAuth] Received hash length:', hash.length);
+      console.log('[TelegramAuth] Received hash (first 10 chars):', hash.substring(0, 10));
 
       // Compare signatures in constant time
       const isValid = this.constantTimeCompare(signature, hash);
       console.log('[TelegramAuth] Signature valid:', isValid);
+      console.log('[TelegramAuth] Signature match:', signature === hash);
+      
+      if (!isValid) {
+        console.error('[TelegramAuth] SIGNATURE VERIFICATION FAILED');
+        console.error('[TelegramAuth] Expected:', signature);
+        console.error('[TelegramAuth] Received:', hash);
+      }
+      
       return isValid;
     } catch (error) {
       console.error('[TelegramAuth] Error verifying Telegram initData:', error);
@@ -163,10 +187,14 @@ let telegramAuthInstance: TelegramAuth | null = null;
 export function getTelegramAuth(): TelegramAuth {
   if (!telegramAuthInstance) {
     const botToken = process.env.TELEGRAM_BOT_TOKEN;
+    console.log('[TelegramAuth] TELEGRAM_BOT_TOKEN present:', !!botToken);
+    console.log('[TelegramAuth] TELEGRAM_BOT_TOKEN length:', botToken?.length || 0);
     if (!botToken) {
+      console.error('[TelegramAuth] TELEGRAM_BOT_TOKEN environment variable is not set');
       throw new Error('TELEGRAM_BOT_TOKEN environment variable is not set');
     }
     telegramAuthInstance = new TelegramAuth(botToken);
+    console.log('[TelegramAuth] TelegramAuth instance created successfully');
   }
   return telegramAuthInstance;
 }
