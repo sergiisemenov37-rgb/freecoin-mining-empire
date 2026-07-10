@@ -1,14 +1,16 @@
 /**
  * Telegram Authentication API Route
- * Verifies Telegram initData and authenticates users
+ * Verifies Telegram initData and authenticates users using official @tma.js/init-data-node
+ * Updated: 2026-07-10 - Migrated to official library
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getTelegramAuth } from '@/lib/telegram/TelegramAuth';
+import { validate, parse, type InitData } from '@tma.js/init-data-node';
 import { createServerClientClient } from '@/lib/supabase/client';
 
 export async function POST(request: NextRequest) {
   console.log('[TelegramAuthAPI] =========================================');
+  console.log('[TelegramAuthAPI] NEW OFFICIAL LIBRARY VERSION - 2026-07-10');
   console.log('[TelegramAuthAPI] Authentication request received');
   console.log('[TelegramAuthAPI] Request URL:', request.url);
   console.log('[TelegramAuthAPI] Request method:', request.method);
@@ -26,31 +28,42 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verify Telegram initData signature
-    console.log('[TelegramAuthAPI] Initializing TelegramAuth');
-    const telegramAuth = getTelegramAuth();
-    console.log('[TelegramAuthAPI] TelegramAuth initialized, parsing initData');
-    const authData = telegramAuth.parseInitData(initData);
+    // Get bot token from environment
+    const botToken = process.env.TELEGRAM_BOT_TOKEN;
+    console.log('[TelegramAuthAPI] TELEGRAM_BOT_TOKEN present:', !!botToken);
     
-    console.log('[TelegramAuthAPI] Auth data parsed:', !!authData, 'telegram_id:', authData?.telegram_id);
+    if (!botToken) {
+      console.error('[TelegramAuthAPI] ERROR: TELEGRAM_BOT_TOKEN environment variable is not set');
+      return NextResponse.json(
+        { success: false, error: 'Server configuration error' },
+        { status: 500 }
+      );
+    }
 
-    if (!authData) {
-      console.error('[TelegramAuthAPI] ERROR: Invalid Telegram data - parseInitData returned null');
-      console.error('[TelegramAuthAPI] This means signature verification failed');
+    // Validate initData using official @tma.js/init-data-node
+    console.log('[TelegramAuthAPI] Validating initData with official library');
+    try {
+      validate(initData, botToken, {
+        expiresIn: 86400, // 24 hours
+      });
+      console.log('[TelegramAuthAPI] initData validation successful');
+    } catch (error) {
+      console.error('[TelegramAuthAPI] ERROR: initData validation failed:', error);
       return NextResponse.json(
         { success: false, error: 'Invalid Telegram data - signature verification failed' },
         { status: 401 }
       );
     }
 
-    // Check if auth date is recent
-    const isDateValid = telegramAuth.isAuthDateValid(authData.auth_date);
-    console.log('[TelegramAuthAPI] Auth date valid:', isDateValid, 'auth_date:', authData.auth_date);
-    
-    if (!isDateValid) {
-      console.error('[TelegramAuthAPI] ERROR: Expired authentication data');
+    // Parse initData using official library
+    console.log('[TelegramAuthAPI] Parsing initData with official library');
+    const parsedInitData: InitData = parse(initData);
+    console.log('[TelegramAuthAPI] Parsed initData, user.id:', parsedInitData.user?.id);
+
+    if (!parsedInitData.user) {
+      console.error('[TelegramAuthAPI] ERROR: No user data in parsed initData');
       return NextResponse.json(
-        { success: false, error: 'Expired authentication data' },
+        { success: false, error: 'Invalid Telegram data - no user information' },
         { status: 401 }
       );
     }
@@ -60,11 +73,11 @@ export async function POST(request: NextRequest) {
     const supabase = await createServerClientClient();
 
     // Check if player exists
-    console.log('[TelegramAuthAPI] Checking for existing player with telegram_id:', authData.telegram_id);
+    console.log('[TelegramAuthAPI] Checking for existing player with telegram_id:', parsedInitData.user.id);
     const { data: existingPlayer, error: fetchError } = await supabase
       .from('players')
       .select('*')
-      .eq('telegram_id', authData.telegram_id)
+      .eq('telegram_id', parsedInitData.user.id)
       .single();
 
     console.log('[TelegramAuthAPI] Existing player found:', !!existingPlayer, 'fetchError:', !!fetchError);
@@ -75,14 +88,13 @@ export async function POST(request: NextRequest) {
       console.log('[TelegramAuthAPI] Creating new player');
       // Create new player
       const playerDataForInsert = {
-        telegram_id: authData.telegram_id,
-        username: authData.username,
-        display_name: `${authData.first_name} ${authData.last_name || ''}`.trim() || authData.username || `User ${authData.telegram_id}`,
-        avatar: authData.photo_url,
-        language: authData.language_code,
-        last_login: new Date().toISOString(),
-        is_premium: authData.is_premium,
+        telegram_id: parsedInitData.user.id,
+        telegram_username: parsedInitData.user.username || null,
         created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        last_active_at: new Date().toISOString(),
+        is_active: true,
+        is_banned: false,
       };
 
       console.log('[TelegramAuthAPI] Player data for insert:', playerDataForInsert);
@@ -109,14 +121,11 @@ export async function POST(request: NextRequest) {
       const { data: updatedPlayer, error: updateError } = await supabase
         .from('players')
         .update({
-          username: authData.username,
-          display_name: `${authData.first_name} ${authData.last_name || ''}`.trim() || authData.username || `User ${authData.telegram_id}`,
-          avatar: authData.photo_url,
-          language: authData.language_code,
-          last_login: new Date().toISOString(),
-          is_premium: authData.is_premium,
+          telegram_username: parsedInitData.user.username || null,
+          updated_at: new Date().toISOString(),
+          last_active_at: new Date().toISOString(),
         })
-        .eq('telegram_id', authData.telegram_id)
+        .eq('telegram_id', parsedInitData.user.id)
         .select()
         .single();
 
@@ -134,11 +143,11 @@ export async function POST(request: NextRequest) {
 
     // Create session
     const session = {
-      telegram_id: authData.telegram_id,
+      telegram_id: parsedInitData.user.id,
       player_id: playerData.id,
-      username: authData.username,
-      display_name: playerData.display_name,
-      avatar: playerData.avatar,
+      username: parsedInitData.user.username || null,
+      display_name: `${parsedInitData.user.first_name} ${parsedInitData.user.last_name || ''}`.trim() || parsedInitData.user.username || `User ${parsedInitData.user.id}`,
+      avatar: parsedInitData.user.photo_url || null,
       expiresAt: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
     };
 

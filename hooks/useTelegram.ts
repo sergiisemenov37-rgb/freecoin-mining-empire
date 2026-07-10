@@ -1,18 +1,51 @@
 /**
  * useTelegram React Hook
- * Provides Telegram WebApp functionality and browser fallback
+ * Provides Telegram WebApp functionality using @telegram-apps/sdk
  */
 
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { 
-  TelegramUser, 
-  TelegramThemeParams, 
-  TelegramViewport, 
-  TelegramHaptic,
-  TelegramCloudStorage 
-} from '@/lib/telegram/types';
+import { useState, useEffect, useCallback } from 'react';
+import { retrieveLaunchParams } from '@telegram-apps/sdk-react';
+
+interface TelegramUser {
+  id: number;
+  first_name: string;
+  last_name?: string;
+  username?: string;
+  language_code?: string;
+  photo_url?: string;
+}
+
+interface TelegramThemeParams {
+  bg_color?: string;
+  text_color?: string;
+  hint_color?: string;
+  link_color?: string;
+  button_color?: string;
+  button_text_color?: string;
+  secondary_bg_color?: string;
+}
+
+interface TelegramViewport {
+  height: number;
+  width: number;
+  stableHeight: number;
+  isExpanded: boolean;
+}
+
+interface TelegramHaptic {
+  impactOccurred: (style?: 'light' | 'medium' | 'heavy' | 'rigid' | 'soft') => void;
+  notificationOccurred: (type: 'error' | 'success' | 'warning') => void;
+  selectionChanged: () => void;
+}
+
+interface TelegramCloudStorage {
+  getKeys: (callback: (keys: string[]) => void) => void;
+  getItems: (keys: string[], callback: (items: Record<string, string>) => void) => void;
+  setItems: (items: Record<string, string>, callback: () => void) => void;
+  removeItems: (keys: string[], callback: () => void) => void;
+}
 
 interface TelegramState {
   user: TelegramUser | null;
