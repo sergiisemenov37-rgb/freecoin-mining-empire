@@ -125,4 +125,27 @@ export const Assets = {
     info: '/assets/status/info.png',
     loading: '/assets/status/loading.png',
   },
+
+  // ============================================
+  // COSMETICS
+  // ============================================
+  cosmetics: {
+    avatars: {
+      minerBasic: '/assets/cosmetics/avatars/miner_basic.png',
+      minerGold: '/assets/cosmetics/avatars/miner_gold.png',
+      minerDiamond: '/assets/cosmetics/avatars/miner_diamond.png',
+    },
+    backgrounds: {
+      cave: '/assets/cosmetics/backgrounds/cave.png',
+      space: '/assets/cosmetics/backgrounds/space.png',
+    },
+    themes: {
+      neon: '/assets/cosmetics/themes/neon.png',
+      cyber: '/assets/cosmetics/themes/cyber.png',
+    },
+    badges: {
+      earlyAdopter: '/assets/cosmetics/badges/early_adopter.png',
+      whale: '/assets/cosmetics/badges/whale.png',
+    },
+  },
 };

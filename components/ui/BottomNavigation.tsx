@@ -19,6 +19,7 @@ const navItems: NavItem[] = [
   { id: 'mining', label: 'Mining', path: '/mining', icon: <Image src={Assets.navigation.mining} alt="Mining" width={24} height={24} /> },
   { id: 'tasks', label: 'Tasks', path: '/tasks', icon: <Image src={Assets.navigation.tasks} alt="Tasks" width={24} height={24} /> },
   { id: 'friends', label: 'Friends', path: '/friends', icon: <Image src={Assets.navigation.friends} alt="Friends" width={24} height={24} /> },
+  { id: 'shop', label: 'Shop', path: '/shop', icon: <Image src={Assets.navigation.shop} alt="Shop" width={24} height={24} /> },
   { id: 'profile', label: 'Profile', path: '/profile', icon: <Image src={Assets.navigation.profile} alt="Profile" width={24} height={24} /> },
 ];
 
