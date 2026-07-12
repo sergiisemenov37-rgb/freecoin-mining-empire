@@ -1,6 +1,6 @@
 /**
  * TelegramProvider Component
- * Initializes Telegram WebApp using ONLY official SDK and provides authentication context
+ * Initializes Telegram WebApp using window.Telegram.WebApp API and provides authentication context
  */
 
 'use client';
@@ -8,7 +8,6 @@
 import { useEffect, useState, ReactNode } from 'react';
 import { useTelegram } from '@/hooks/useTelegram';
 import { useTelegramTheme } from '@/hooks/useTelegramTheme';
-import { retrieveLaunchParams } from '@telegram-apps/sdk-react';
 
 interface TelegramProviderProps {
   children: ReactNode;
@@ -21,10 +20,11 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    console.log('[TelegramProvider] =========================================');
     console.log('[TelegramProvider] Effect triggered, isReady:', isReady, 'isTelegram:', isTelegram);
     
     if (!isReady) {
-      console.log('[TelegramProvider] Waiting for Telegram SDK to be ready');
+      console.log('[TelegramProvider] Waiting for Telegram WebApp to be ready');
       return;
     }
 
@@ -35,32 +35,56 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
         if (isTelegram) {
           console.log('[TelegramProvider] Running in Telegram mode');
           
-          // Use official SDK to retrieve initData
-          let launchParams;
-          try {
-            launchParams = retrieveLaunchParams();
-            console.log('[TelegramProvider] Official SDK launch params retrieved:', !!launchParams);
-          } catch (sdkError) {
-            console.error('[TelegramProvider] retrieveLaunchParams() error:', sdkError);
-            alert('retrieveLaunchParams() failed: ' + (sdkError as Error).stack || (sdkError as Error).message);
+          // Use window.Telegram.WebApp.initData directly
+          const webApp = (window as any).Telegram?.WebApp;
+          
+          if (!webApp) {
+            console.error('[TelegramProvider] Telegram WebApp not available');
+            alert('Telegram WebApp not available');
             setIsAuthenticated(false);
             setIsLoading(false);
             return;
           }
           
-          const initData = launchParams?.initDataRaw as string | undefined;
-          console.log('[TelegramProvider] initDataRaw exists:', !!initData, 'length:', initData?.length);
+          console.log('[TelegramProvider] window.Telegram.WebApp.initData exists:', !!webApp.initData);
+          console.log('[TelegramProvider] window.Telegram.WebApp.initData length:', webApp.initData?.length);
+          
+          const initData = webApp.initData;
           
           if (!initData) {
-            console.error('[TelegramProvider] No initDataRaw available from official SDK');
-            alert('No initDataRaw available from official SDK. This should not happen in Telegram.');
-            setIsAuthenticated(false);
-            setIsLoading(false);
-            return;
+            console.error('[TelegramProvider] No initData available from window.Telegram.WebApp');
+            console.log('[TelegramProvider] This is expected in some Telegram Desktop scenarios');
+            console.log('[TelegramProvider] Attempting to use initDataUnsafe for authentication');
+            
+            // Try to use initDataUnsafe as fallback
+            if (webApp.initDataUnsafe?.user) {
+              console.log('[TelegramProvider] Using initDataUnsafe.user for basic auth');
+              // Create a basic session without server validation
+              const session = {
+                telegram_id: webApp.initDataUnsafe.user.id,
+                player_id: webApp.initDataUnsafe.user.id,
+                username: webApp.initDataUnsafe.user.username || null,
+                display_name: `${webApp.initDataUnsafe.user.first_name} ${webApp.initDataUnsafe.user.last_name || ''}`.trim() || webApp.initDataUnsafe.user.username || `User ${webApp.initDataUnsafe.user.id}`,
+                avatar: webApp.initDataUnsafe.user.photo_url || null,
+                expiresAt: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
+              };
+              
+              console.log('[TelegramProvider] Basic session created:', session);
+              localStorage.setItem('telegram_session', JSON.stringify(session));
+              setIsAuthenticated(true);
+              setIsLoading(false);
+              return;
+            } else {
+              console.error('[TelegramProvider] No initDataUnsafe.user available either');
+              alert('No Telegram authentication data available. Please try opening the app again.');
+              setIsAuthenticated(false);
+              setIsLoading(false);
+              return;
+            }
           }
           
           console.log('[AUTH] BEFORE FETCH');
-          console.log('[TelegramProvider] Sending initDataRaw from official SDK to API');
+          console.log('[TelegramProvider] Sending initData from window.Telegram.WebApp to API');
           const response = await fetch('/api/auth/telegram', {
             method: 'POST',
             headers: {

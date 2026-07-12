@@ -1,12 +1,11 @@
 /**
  * useTelegram React Hook
- * Provides Telegram WebApp functionality using ONLY official @telegram-apps/sdk-react
+ * Provides Telegram WebApp functionality using official window.Telegram.WebApp API
  */
 
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { retrieveLaunchParams } from '@telegram-apps/sdk-react';
 import { TelegramState, TelegramActions, TelegramThemeParams, TelegramViewport, TelegramHaptic, TelegramCloudStorage } from '@/types/telegram';
 
 
@@ -98,48 +97,68 @@ export function useTelegram(): TelegramState & TelegramActions {
 
   useEffect(() => {
     try {
-      console.log('[useTelegram] Initializing with official SDK');
+      console.log('[useTelegram] =========================================');
+      console.log('[useTelegram] Initializing with window.Telegram.WebApp');
       
-      // Use official SDK to retrieve launch parameters
-      const launchParams = retrieveLaunchParams();
+      // Log window.Telegram availability
+      console.log('[useTelegram] window.Telegram exists:', !!(window as any).Telegram);
+      console.log('[useTelegram] window.Telegram.WebApp exists:', !!(window as any).Telegram?.WebApp);
       
-      console.log('[useTelegram] Official SDK launch params retrieved:', !!launchParams);
+      const webApp = (window as any).Telegram?.WebApp;
       
-      // Check if running in Telegram
-      const isTelegramApp = !!launchParams;
-      
-      if (!isTelegramApp) {
-        console.log('[useTelegram] Not in Telegram, using browser fallback');
-        // Browser fallback
+      if (!webApp) {
+        console.log('[useTelegram] Telegram WebApp not available, using browser fallback');
         const fallback = createBrowserFallback();
         setState(fallback as any);
         return;
       }
 
-      console.log('[useTelegram] Running in Telegram, setting state from SDK');
+      // Log all Telegram WebApp properties
+      console.log('[useTelegram] Telegram WebApp properties:');
+      console.log('[useTelegram] - initData exists:', !!webApp.initData);
+      console.log('[useTelegram] - initData length:', webApp.initData?.length);
+      console.log('[useTelegram] - initDataUnsafe:', webApp.initDataUnsafe);
+      console.log('[useTelegram] - version:', webApp.version);
+      console.log('[useTelegram] - platform:', webApp.platform);
+      console.log('[useTelegram] - colorScheme:', webApp.colorScheme);
+      console.log('[useTelegram] - themeParams:', webApp.themeParams);
+      console.log('[useTelegram] - isExpanded:', webApp.isExpanded);
+      console.log('[useTelegram] - viewportHeight:', webApp.viewportHeight);
+      console.log('[useTelegram] - viewportWidth:', webApp.viewportWidth);
       
-      // Set initial state from official SDK only
+      // Initialize Telegram WebApp
+      console.log('[useTelegram] Calling Telegram.WebApp.ready()');
+      webApp.ready();
+      
+      console.log('[useTelegram] Calling Telegram.WebApp.expand()');
+      webApp.expand();
+      
+      console.log('[useTelegram] Calling Telegram.WebApp.enableClosingConfirmation()');
+      webApp.enableClosingConfirmation();
+      
+      // Set state from window.Telegram.WebApp
       setState({
-        user: (launchParams as any).initDataUnsafe?.user || null,
+        user: webApp.initDataUnsafe?.user || null,
         isTelegram: true,
         isReady: true,
-        theme: (launchParams as any).themeParams || {},
+        theme: webApp.themeParams || {},
         viewport: {
-          height: (launchParams as any).viewportHeight || window.innerHeight,
-          width: (launchParams as any).viewportWidth || window.innerWidth,
-          stableHeight: (launchParams as any).viewportHeight || window.innerHeight,
-          isExpanded: (launchParams as any).isExpanded || true,
+          height: webApp.viewportHeight || window.innerHeight,
+          width: webApp.viewportWidth || window.innerWidth,
+          stableHeight: webApp.viewportHeight || window.innerHeight,
+          isExpanded: webApp.isExpanded || true,
         },
-        haptic: null, // Will be accessed via SDK when needed
-        cloudStorage: null, // Will be accessed via SDK when needed
-        colorScheme: (launchParams as any).colorScheme || 'light',
-        version: (launchParams as any).version || '',
-        platform: (launchParams as any).platform || '',
+        haptic: webApp.HapticFeedback || null,
+        cloudStorage: webApp.CloudStorage || null,
+        colorScheme: webApp.colorScheme || 'light',
+        version: webApp.version || '',
+        platform: webApp.platform || '',
       });
 
       console.log('[useTelegram] State set successfully');
+      console.log('[useTelegram] =========================================');
     } catch (error) {
-      console.error('[useTelegram] Error initializing Telegram SDK:', error);
+      console.error('[useTelegram] Error initializing Telegram WebApp:', error);
       // Browser fallback on error
       const fallback = createBrowserFallback();
       setState(fallback as any);
@@ -147,38 +166,61 @@ export function useTelegram(): TelegramState & TelegramActions {
   }, []);
 
   const expand = useCallback(() => {
-    // Access via official SDK if needed
-    console.log('[useTelegram] expand called');
+    const webApp = (window as any).Telegram?.WebApp;
+    if (webApp) {
+      console.log('[useTelegram] Calling Telegram.WebApp.expand()');
+      webApp.expand();
+    }
   }, []);
 
   const close = useCallback(() => {
-    // Access via official SDK if needed
-    console.log('[useTelegram] close called');
+    const webApp = (window as any).Telegram?.WebApp;
+    if (webApp) {
+      console.log('[useTelegram] Calling Telegram.WebApp.close()');
+      webApp.close();
+    }
   }, []);
 
   const ready = useCallback(() => {
-    // Access via official SDK if needed
-    console.log('[useTelegram] ready called');
+    const webApp = (window as any).Telegram?.WebApp;
+    if (webApp) {
+      console.log('[useTelegram] Calling Telegram.WebApp.ready()');
+      webApp.ready();
+    }
   }, []);
 
   const hapticImpact = useCallback((style?: 'light' | 'medium' | 'heavy' | 'rigid' | 'soft') => {
-    console.log('[useTelegram] hapticImpact called with style:', style);
-  }, []);
+    if (state.haptic) {
+      state.haptic.impactOccurred(style);
+    }
+  }, [state.haptic]);
 
   const hapticNotification = useCallback((type: 'error' | 'success' | 'warning') => {
-    console.log('[useTelegram] hapticNotification called with type:', type);
-  }, []);
+    if (state.haptic) {
+      state.haptic.notificationOccurred(type);
+    }
+  }, [state.haptic]);
 
   const hapticSelection = useCallback(() => {
-    console.log('[useTelegram] hapticSelection called');
-  }, []);
+    if (state.haptic) {
+      state.haptic.selectionChanged();
+    }
+  }, [state.haptic]);
 
   const enableClosingConfirmation = useCallback(() => {
-    console.log('[useTelegram] enableClosingConfirmation called');
+    const webApp = (window as any).Telegram?.WebApp;
+    if (webApp) {
+      console.log('[useTelegram] Calling Telegram.WebApp.enableClosingConfirmation()');
+      webApp.enableClosingConfirmation();
+    }
   }, []);
 
   const disableClosingConfirmation = useCallback(() => {
-    console.log('[useTelegram] disableClosingConfirmation called');
+    const webApp = (window as any).Telegram?.WebApp;
+    if (webApp) {
+      console.log('[useTelegram] Calling Telegram.WebApp.disableClosingConfirmation()');
+      webApp.disableClosingConfirmation();
+    }
   }, []);
 
   return {
