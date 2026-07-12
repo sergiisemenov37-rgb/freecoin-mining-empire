@@ -1,6 +1,6 @@
 /**
  * TelegramProvider Component
- * Initializes Telegram WebApp using official SDK and provides authentication context
+ * Initializes Telegram WebApp using ONLY official SDK and provides authentication context
  */
 
 'use client';
@@ -42,7 +42,7 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
             console.log('[TelegramProvider] Official SDK launch params retrieved:', !!launchParams);
           } catch (sdkError) {
             console.error('[TelegramProvider] retrieveLaunchParams() error:', sdkError);
-            alert((sdkError as Error).stack || (sdkError as Error).message);
+            alert('retrieveLaunchParams() failed: ' + (sdkError as Error).stack || (sdkError as Error).message);
             setIsAuthenticated(false);
             setIsLoading(false);
             return;
@@ -51,50 +51,53 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
           const initData = launchParams?.initDataRaw as string | undefined;
           console.log('[TelegramProvider] initDataRaw exists:', !!initData, 'length:', initData?.length);
           
-          if (initData) {
-            console.log('[AUTH] BEFORE FETCH');
-            console.log('[TelegramProvider] Sending initDataRaw from official SDK to API');
-            const response = await fetch('/api/auth/telegram', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ initData }),
-            });
-
-            console.log('[AUTH] AFTER FETCH');
-            console.log('[AUTH] STATUS', response.status);
-            
-            const responseText = await response.text();
-            console.log('[AUTH] RESPONSE', responseText);
-            
-            if (!response.ok) {
-              alert(
-                'HTTP ' +
-                response.status +
-                '\n\n' +
-                responseText
-              );
-              setIsAuthenticated(false);
-              setIsLoading(false);
-              return;
-            }
-            
-            const data = JSON.parse(responseText);
-            console.log('[TelegramProvider] API response data:', data);
-            
-            if (data.success) {
-              console.log('[TelegramProvider] Authentication successful');
-              setIsAuthenticated(true);
-              // Store session
-              localStorage.setItem('telegram_session', JSON.stringify(data.session));
-            } else {
-              console.error('[TelegramProvider] API returned success=false:', data.error);
-              // Do not allow access on auth failure
-              setIsAuthenticated(false);
-            }
-          } else {
+          if (!initData) {
             console.error('[TelegramProvider] No initDataRaw available from official SDK');
+            alert('No initDataRaw available from official SDK. This should not happen in Telegram.');
+            setIsAuthenticated(false);
+            setIsLoading(false);
+            return;
+          }
+          
+          console.log('[AUTH] BEFORE FETCH');
+          console.log('[TelegramProvider] Sending initDataRaw from official SDK to API');
+          const response = await fetch('/api/auth/telegram', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ initData }),
+          });
+
+          console.log('[AUTH] AFTER FETCH');
+          console.log('[AUTH] STATUS', response.status);
+          
+          const responseText = await response.text();
+          console.log('[AUTH] RESPONSE', responseText);
+          
+          if (!response.ok) {
+            alert(
+              'HTTP ' +
+              response.status +
+              '\n\n' +
+              responseText
+            );
+            setIsAuthenticated(false);
+            setIsLoading(false);
+            return;
+          }
+          
+          const data = JSON.parse(responseText);
+          console.log('[TelegramProvider] API response data:', data);
+          
+          if (data.success) {
+            console.log('[TelegramProvider] Authentication successful');
+            setIsAuthenticated(true);
+            // Store session
+            localStorage.setItem('telegram_session', JSON.stringify(data.session));
+          } else {
+            console.error('[TelegramProvider] API returned success=false:', data.error);
+            alert('Authentication failed: ' + data.error);
             setIsAuthenticated(false);
           }
         } else {
@@ -104,7 +107,7 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
         }
       } catch (error) {
         console.error('[TelegramProvider] Authentication error:', error);
-        alert((error as Error).stack || (error as Error).message);
+        alert('Authentication error: ' + (error as Error).stack || (error as Error).message);
         // Do not authenticate on error in Telegram mode
         if (!isTelegram) {
           console.log('[TelegramProvider] Browser mode error - still authenticating');
