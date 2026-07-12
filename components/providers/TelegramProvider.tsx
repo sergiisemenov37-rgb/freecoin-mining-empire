@@ -34,14 +34,25 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
       try {
         if (isTelegram) {
           console.log('[TelegramProvider] Running in Telegram mode');
+          
           // Use official SDK to retrieve initData
-          const launchParams = retrieveLaunchParams();
-          console.log('[TelegramProvider] Official SDK launch params retrieved:', !!launchParams);
+          let launchParams;
+          try {
+            launchParams = retrieveLaunchParams();
+            console.log('[TelegramProvider] Official SDK launch params retrieved:', !!launchParams);
+          } catch (sdkError) {
+            console.error('[TelegramProvider] retrieveLaunchParams() error:', sdkError);
+            alert((sdkError as Error).stack || (sdkError as Error).message);
+            setIsAuthenticated(false);
+            setIsLoading(false);
+            return;
+          }
           
           const initData = launchParams?.initDataRaw as string | undefined;
           console.log('[TelegramProvider] initDataRaw exists:', !!initData, 'length:', initData?.length);
           
           if (initData) {
+            console.log('[AUTH] BEFORE FETCH');
             console.log('[TelegramProvider] Sending initDataRaw from official SDK to API');
             const response = await fetch('/api/auth/telegram', {
               method: 'POST',
@@ -51,24 +62,35 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
               body: JSON.stringify({ initData }),
             });
 
-            console.log('[TelegramProvider] API response status:', response.status);
+            console.log('[AUTH] AFTER FETCH');
+            console.log('[AUTH] STATUS', response.status);
             
-            if (response.ok) {
-              const data = await response.json();
-              console.log('[TelegramProvider] API response data:', data);
-              
-              if (data.success) {
-                console.log('[TelegramProvider] Authentication successful');
-                setIsAuthenticated(true);
-                // Store session
-                localStorage.setItem('telegram_session', JSON.stringify(data.session));
-              } else {
-                console.error('[TelegramProvider] API returned success=false:', data.error);
-                // Do not allow access on auth failure
-                setIsAuthenticated(false);
-              }
+            const responseText = await response.text();
+            console.log('[AUTH] RESPONSE', responseText);
+            
+            if (!response.ok) {
+              alert(
+                'HTTP ' +
+                response.status +
+                '\n\n' +
+                responseText
+              );
+              setIsAuthenticated(false);
+              setIsLoading(false);
+              return;
+            }
+            
+            const data = JSON.parse(responseText);
+            console.log('[TelegramProvider] API response data:', data);
+            
+            if (data.success) {
+              console.log('[TelegramProvider] Authentication successful');
+              setIsAuthenticated(true);
+              // Store session
+              localStorage.setItem('telegram_session', JSON.stringify(data.session));
             } else {
-              console.error('[TelegramProvider] API request failed:', response.status, response.statusText);
+              console.error('[TelegramProvider] API returned success=false:', data.error);
+              // Do not allow access on auth failure
               setIsAuthenticated(false);
             }
           } else {
@@ -82,6 +104,7 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
         }
       } catch (error) {
         console.error('[TelegramProvider] Authentication error:', error);
+        alert((error as Error).stack || (error as Error).message);
         // Do not authenticate on error in Telegram mode
         if (!isTelegram) {
           console.log('[TelegramProvider] Browser mode error - still authenticating');
