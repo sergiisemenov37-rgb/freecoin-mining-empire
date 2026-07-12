@@ -1,6 +1,6 @@
 /**
  * useTelegram React Hook
- * Provides Telegram WebApp functionality using @telegram-apps/sdk
+ * Provides Telegram WebApp functionality using official @telegram-apps/sdk-react
  */
 
 'use client';
@@ -218,83 +218,104 @@ export function useTelegram(): TelegramState & TelegramActions {
     platform: '',
   });
 
-  const [webApp, setWebApp] = useState<any>(null);
-
   useEffect(() => {
-    // Check if running in Telegram
-    const isTelegramApp = typeof window !== 'undefined' && window.Telegram?.WebApp;
+    try {
+      // Use official SDK to retrieve launch parameters
+      const launchParams = retrieveLaunchParams();
+      
+      console.log('[useTelegram] Official SDK launch params retrieved:', !!launchParams);
+      
+      // Check if running in Telegram
+      const isTelegramApp = !!launchParams;
+      
+      if (!isTelegramApp) {
+        // Browser fallback
+        const fallback = createBrowserFallback();
+        setState(fallback as any);
+        return;
+      }
 
-    if (!isTelegramApp) {
-      // Browser fallback
+      // Access Telegram WebApp through the official SDK
+      // The SDK provides access to the WebApp instance
+      const webApp = (window as any).Telegram?.WebApp;
+      
+      if (!webApp) {
+        console.error('[useTelegram] Telegram WebApp not available despite launch params');
+        const fallback = createBrowserFallback();
+        setState(fallback as any);
+        return;
+      }
+
+      // Initialize Telegram WebApp using official SDK
+      webApp.ready();
+      webApp.expand();
+      webApp.enableClosingConfirmation();
+
+      // Set initial state from official SDK
+      setState({
+        user: (launchParams as any).initDataUnsafe?.user || null,
+        isTelegram: true,
+        isReady: true,
+        theme: webApp.themeParams,
+        viewport: {
+          height: webApp.viewportHeight,
+          width: webApp.viewportWidth,
+          stableHeight: webApp.viewportHeight,
+          isExpanded: webApp.isExpanded,
+        },
+        haptic: webApp.HapticFeedback || null,
+        cloudStorage: webApp.CloudStorage || null,
+        colorScheme: webApp.colorScheme,
+        version: webApp.version,
+        platform: webApp.platform,
+      });
+
+      // Listen for viewport changes
+      const handleViewportChange = () => {
+        setState(prev => ({
+          ...prev,
+          viewport: {
+            height: webApp.viewportHeight,
+            width: webApp.viewportWidth,
+            stableHeight: webApp.viewportHeight,
+            isExpanded: webApp.isExpanded,
+          },
+        }));
+      };
+
+      window.addEventListener('resize', handleViewportChange);
+
+      return () => {
+        window.removeEventListener('resize', handleViewportChange);
+      };
+    } catch (error) {
+      console.error('[useTelegram] Error initializing Telegram SDK:', error);
+      // Browser fallback on error
       const fallback = createBrowserFallback();
       setState(fallback as any);
-      return;
     }
-
-    const tg = window.Telegram!.WebApp;
-    setWebApp(tg);
-
-    // Initialize Telegram WebApp
-    tg.ready();
-    tg.expand();
-    tg.enableClosingConfirmation();
-
-    // Set initial state
-    setState({
-      user: tg.initDataUnsafe.user || null,
-      isTelegram: true,
-      isReady: true,
-      theme: tg.themeParams,
-      viewport: {
-        height: tg.viewportHeight,
-        width: tg.viewportWidth,
-        stableHeight: tg.viewportHeight,
-        isExpanded: tg.isExpanded,
-      },
-      haptic: tg.HapticFeedback || null,
-      cloudStorage: tg.CloudStorage || null,
-      colorScheme: tg.colorScheme,
-      version: tg.version,
-      platform: tg.platform,
-    });
-
-    // Listen for viewport changes
-    const handleViewportChange = () => {
-      setState(prev => ({
-        ...prev,
-        viewport: {
-          height: tg.viewportHeight,
-          width: tg.viewportWidth,
-          stableHeight: tg.viewportHeight,
-          isExpanded: tg.isExpanded,
-        },
-      }));
-    };
-
-    window.addEventListener('resize', handleViewportChange);
-
-    return () => {
-      window.removeEventListener('resize', handleViewportChange);
-    };
   }, []);
 
   const expand = useCallback(() => {
+    const webApp = (window as any).Telegram?.WebApp;
     if (webApp) {
       webApp.expand();
     }
-  }, [webApp]);
+  }, []);
 
   const close = useCallback(() => {
+    const webApp = (window as any).Telegram?.WebApp;
     if (webApp) {
       webApp.close();
     }
-  }, [webApp]);
+  }, []);
 
   const ready = useCallback(() => {
+    const webApp = (window as any).Telegram?.WebApp;
     if (webApp) {
       webApp.ready();
     }
-  }, [webApp]);
+  }, []);
 
   const hapticImpact = useCallback((style?: 'light' | 'medium' | 'heavy' | 'rigid' | 'soft') => {
     if (state.haptic) {
@@ -315,16 +336,18 @@ export function useTelegram(): TelegramState & TelegramActions {
   }, [state.haptic]);
 
   const enableClosingConfirmation = useCallback(() => {
+    const webApp = (window as any).Telegram?.WebApp;
     if (webApp) {
       webApp.enableClosingConfirmation();
     }
-  }, [webApp]);
+  }, []);
 
   const disableClosingConfirmation = useCallback(() => {
+    const webApp = (window as any).Telegram?.WebApp;
     if (webApp) {
       webApp.disableClosingConfirmation();
     }
-  }, [webApp]);
+  }, []);
 
   return {
     ...state,

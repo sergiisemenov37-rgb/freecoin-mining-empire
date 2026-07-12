@@ -1,6 +1,6 @@
 /**
  * TelegramProvider Component
- * Initializes Telegram WebApp and provides authentication context
+ * Initializes Telegram WebApp using official SDK and provides authentication context
  */
 
 'use client';
@@ -8,13 +8,14 @@
 import { useEffect, useState, ReactNode } from 'react';
 import { useTelegram } from '@/hooks/useTelegram';
 import { useTelegramTheme } from '@/hooks/useTelegramTheme';
+import { retrieveLaunchParams } from '@telegram-apps/sdk-react';
 
 interface TelegramProviderProps {
   children: ReactNode;
 }
 
 export function TelegramProvider({ children }: TelegramProviderProps) {
-  const { isReady, isTelegram, user, ready, expand, enableClosingConfirmation } = useTelegram();
+  const { isReady, isTelegram, user } = useTelegram();
   useTelegramTheme();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -27,26 +28,21 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
       return;
     }
 
-    // Initialize Telegram WebApp
-    if (isTelegram) {
-      console.log('[TelegramProvider] Initializing Telegram WebApp');
-      ready();
-      expand();
-      enableClosingConfirmation();
-    }
-
     // Authenticate user
     const authenticateUser = async () => {
       console.log('[TelegramProvider] Starting authentication');
       try {
         if (isTelegram) {
           console.log('[TelegramProvider] Running in Telegram mode');
-          // In Telegram, send initData to server for verification
-          const initData = window.Telegram?.WebApp.initData;
-          console.log('[TelegramProvider] initData exists:', !!initData, 'length:', initData?.length);
+          // Use official SDK to retrieve initData
+          const launchParams = retrieveLaunchParams();
+          console.log('[TelegramProvider] Official SDK launch params retrieved:', !!launchParams);
+          
+          const initData = launchParams?.initDataRaw as string | undefined;
+          console.log('[TelegramProvider] initDataRaw exists:', !!initData, 'length:', initData?.length);
           
           if (initData) {
-            console.log('[TelegramProvider] Sending initData to API');
+            console.log('[TelegramProvider] Sending initDataRaw from official SDK to API');
             const response = await fetch('/api/auth/telegram', {
               method: 'POST',
               headers: {
@@ -76,7 +72,7 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
               setIsAuthenticated(false);
             }
           } else {
-            console.error('[TelegramProvider] No initData available in Telegram mode');
+            console.error('[TelegramProvider] No initDataRaw available from official SDK');
             setIsAuthenticated(false);
           }
         } else {
@@ -91,7 +87,7 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
           console.log('[TelegramProvider] Browser mode error - still authenticating');
           setIsAuthenticated(true);
         } else {
-          console.error('[TelegramProvider] Telegram режим error - authentication failed');
+          console.error('[TelegramProvider] Telegram mode error - authentication failed');
           setIsAuthenticated(false);
         }
       } finally {
@@ -125,7 +121,7 @@ export function TelegramProvider({ children }: TelegramProviderProps) {
     }
 
     authenticateUser();
-  }, [isReady, isTelegram, user, ready, expand, enableClosingConfirmation]);
+  }, [isReady, isTelegram, user]);
 
   if (isLoading) {
     return (
