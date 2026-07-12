@@ -7,6 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { validate, parse, type InitData } from '@tma.js/init-data-node';
 import { createServerClientClient } from '@/lib/supabase/client';
+import { createAdminClient } from '@/lib/supabase/client';
 
 export async function POST(request: NextRequest) {
   console.log('[TelegramAuthAPI] =========================================');
@@ -68,12 +69,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get Supabase client
-    console.log('[TelegramAuthAPI] Getting Supabase client');
-    const supabase = await createServerClientClient();
+    // Get Supabase admin client (bypasses RLS for Telegram auth)
+    console.log('[TelegramAuthAPI] Getting Supabase admin client');
+    const supabase = createAdminClient();
+    console.log('[TelegramAuthAPI] Supabase admin client created');
 
     // Check if player exists
     console.log('[TelegramAuthAPI] Checking for existing player with telegram_id:', parsedInitData.user.id);
+    
     const { data: existingPlayer, error: fetchError } = await supabase
       .from('players')
       .select('*')
@@ -81,6 +84,9 @@ export async function POST(request: NextRequest) {
       .single();
 
     console.log('[TelegramAuthAPI] Existing player found:', !!existingPlayer, 'fetchError:', !!fetchError);
+    if (fetchError) {
+      console.error('[TelegramAuthAPI] Fetch error details:', JSON.stringify(fetchError));
+    }
 
     let playerData;
 
