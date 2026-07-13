@@ -1,27 +1,106 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { PageLayout } from '@/components/ui/PageLayout';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { BottomNavigation } from '@/components/ui/BottomNavigation';
 import { TonConnectButton } from '@tonconnect/ui-react';
 import { useTonConnect } from '@/hooks/useTonConnect';
+import { useSession } from '@/hooks/useSession';
+import { playerService } from '@/services/PlayerService';
+import { EmpireService } from '@/lib/supabase/services/empireService';
+import { AssetManager } from '@/lib/assets/AssetManager';
 
 export default function Profile() {
+  const { session } = useSession();
   const { connected, formattedAddress, walletName, disconnectWallet, walletHistory, primaryWallet, setAsPrimary } = useTonConnect();
+  const [playerProfile, setPlayerProfile] = useState<any>(null);
+  const [empire, setEmpire] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!session?.player_id) return;
+
+    const loadProfileData = async () => {
+      try {
+        setLoading(true);
+        const [profile, empireData] = await Promise.all([
+          playerService.getProfile(session.player_id),
+          EmpireService.getEmpireByPlayerId(session.player_id),
+        ]);
+
+        setPlayerProfile(profile);
+        setEmpire(empireData);
+      } catch (error) {
+        console.error('Failed to load profile data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProfileData();
+  }, [session?.player_id]);
+
+  if (loading) {
+    return (
+      <>
+        <PageLayout title="Profile">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-gray-400">Loading profile...</div>
+          </div>
+        </PageLayout>
+        <BottomNavigation />
+      </>
+    );
+  }
 
   return (
     <>
       <PageLayout title="Profile">
+        {/* Profile Header */}
         <Card className="mb-4">
-          <CardHeader>
-            <CardTitle>Your Profile</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-gray-300">Manage your account settings.</p>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center overflow-hidden">
+                <img src={AssetManager.navigation.PROFILE} alt="Avatar" className="w-full h-full object-cover" />
+              </div>
+              <div className="flex-1">
+                <h2 className="text-white font-bold text-lg">{session?.username || 'Player'}</h2>
+                <p className="text-gray-400 text-sm">ID: {session?.player_id?.slice(0, 8)}...</p>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
+        {/* Statistics */}
+        <Card className="mb-4">
+          <CardHeader>
+            <CardTitle>Statistics</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="p-3 bg-gray-800 rounded-lg">
+                <p className="text-gray-400 text-xs">Empire Level</p>
+                <p className="text-white font-bold text-xl">{empire?.level || 1}</p>
+              </div>
+              <div className="p-3 bg-gray-800 rounded-lg">
+                <p className="text-gray-400 text-xs">Experience</p>
+                <p className="text-white font-bold text-xl">{empire?.experience || 0}</p>
+              </div>
+              <div className="p-3 bg-gray-800 rounded-lg">
+                <p className="text-gray-400 text-xs">Buildings</p>
+                <p className="text-white font-bold text-xl">0</p>
+              </div>
+              <div className="p-3 bg-gray-800 rounded-lg">
+                <p className="text-gray-400 text-xs">Friends</p>
+                <p className="text-white font-bold text-xl">0</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Wallet Connection */}
         <Card className="mb-4">
           <CardHeader>
             <CardTitle>Wallet Connection</CardTitle>
@@ -96,32 +175,37 @@ export default function Profile() {
           </CardContent>
         </Card>
 
+        {/* Settings */}
         <Card>
           <CardHeader>
-            <CardTitle>Payment Methods</CardTitle>
+            <CardTitle>Settings</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
               <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-xl">
                 <div>
-                  <p className="text-white font-medium">Telegram Stars</p>
-                  <p className="text-gray-400 text-xs">Native Telegram payments</p>
+                  <p className="text-white font-medium">Notifications</p>
+                  <p className="text-gray-400 text-xs">Push notifications</p>
                 </div>
-                <span className="text-yellow-400 text-sm">Coming Soon</span>
+                <div className="w-12 h-6 bg-blue-600 rounded-full relative">
+                  <div className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full" />
+                </div>
               </div>
               <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-xl">
                 <div>
-                  <p className="text-white font-medium">TON</p>
-                  <p className="text-gray-400 text-xs">The Open Network</p>
+                  <p className="text-white font-medium">Sound Effects</p>
+                  <p className="text-gray-400 text-xs">In-game sounds</p>
                 </div>
-                <span className="text-yellow-400 text-sm">Coming Soon</span>
+                <div className="w-12 h-6 bg-blue-600 rounded-full relative">
+                  <div className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full" />
+                </div>
               </div>
               <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-xl">
                 <div>
-                  <p className="text-white font-medium">USDT (TON Jetton)</p>
-                  <p className="text-gray-400 text-xs">Stablecoin on TON</p>
+                  <p className="text-white font-medium">Language</p>
+                  <p className="text-gray-400 text-xs">App language</p>
                 </div>
-                <span className="text-yellow-400 text-sm">Coming Soon</span>
+                <span className="text-gray-400 text-sm">English</span>
               </div>
             </div>
           </CardContent>

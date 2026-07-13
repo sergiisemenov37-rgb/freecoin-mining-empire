@@ -7,6 +7,7 @@ import { BottomNavigation } from '@/components/ui/BottomNavigation';
 import { cosmeticStore } from '@/lib/cosmetics/CosmeticStore';
 import { CosmeticCategory, CosmeticRarity } from '@/lib/cosmetics/CosmeticTypes';
 import { useState } from 'react';
+import { AssetManager } from '@/lib/assets/AssetManager';
 
 export default function Shop() {
   const [selectedCategory, setSelectedCategory] = useState<CosmeticCategory>(CosmeticCategory.AVATAR);
@@ -77,17 +78,17 @@ export default function Shop() {
           {items.map((item) => (
             <Card
               key={item.id}
-              className={`border-2 ${getRarityBorder(item.rarity)} hover:scale-105 transition-transform`}
+              className={`border-2 ${getRarityBorder(item.rarity)} hover:scale-105 transition-transform flex flex-col`}
             >
-              <CardContent className="p-3">
-                <div className="aspect-square bg-gray-800 rounded-lg mb-2 flex items-center justify-center">
-                  <span className="text-4xl">🎨</span>
+              <CardContent className="p-3 flex-1 flex flex-col">
+                <div className="aspect-square bg-gray-800 rounded-lg mb-2 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                  <img src={AssetManager.buildings.FACTORY} alt={item.name} className="w-full h-full object-cover" />
                 </div>
-                <h3 className="text-white font-medium text-sm mb-1">{item.name}</h3>
+                <h3 className="text-white font-medium text-sm mb-1 line-clamp-2">{item.name}</h3>
                 <p className={`text-xs ${getRarityColor(item.rarity)} capitalize mb-2`}>
                   {item.rarity}
                 </p>
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between mt-auto">
                   <span className="text-white text-sm font-bold">
                     {item.price} {item.currency}
                   </span>
@@ -96,10 +97,10 @@ export default function Shop() {
                   </Button>
                 </div>
                 {item.isLimited && (
-                  <p className="text-yellow-400 text-xs mt-2">⏰ Limited</p>
+                  <p className="text-yellow-400 text-xs mt-2">Limited</p>
                 )}
                 {item.isExclusive && (
-                  <p className="text-purple-400 text-xs mt-2">⭐ Exclusive</p>
+                  <p className="text-purple-400 text-xs mt-2">Exclusive</p>
                 )}
               </CardContent>
             </Card>

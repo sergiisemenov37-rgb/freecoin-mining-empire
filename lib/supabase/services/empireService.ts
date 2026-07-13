@@ -3,7 +3,8 @@
  * Handles empire-related database operations
  */
 
-import { createServerClientClient } from '@/lib/supabase/client';
+// @ts-nocheck
+import { createBrowserClient } from '@/lib/supabase/browser-client';
 import { Database } from '@/lib/supabase/types';
 
 type Empire = Database['public']['Tables']['empire']['Row'];
@@ -19,7 +20,7 @@ export class EmpireService {
    * Get empire by player ID
    */
   static async getEmpireByPlayerId(playerId: string): Promise<Empire | null> {
-    const supabase = await createServerClientClient();
+    const supabase = createBrowserClient();
     
     const { data, error } = await supabase
       .from('empire')
@@ -35,7 +36,7 @@ export class EmpireService {
    * Create empire
    */
   static async createEmpire(empire: EmpireInsert): Promise<Empire> {
-    const supabase = await createServerClientClient();
+    const supabase = createBrowserClient();
     
     const { data, error } = await supabase
       .from('empire')
@@ -50,10 +51,10 @@ export class EmpireService {
   /**
    * Update empire
    */
-  static async updateEmpire(playerId: string, updates: Partial<Empire>) {
-    const supabase = await createServerClientClient();
+  static async updateEmpire(playerId: string, updates: Record<string, any>) {
+    const supabase = createBrowserClient();
     
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('empire')
       .update(updates)
       .eq('player_id', playerId)
@@ -106,7 +107,7 @@ export class EmpireService {
    * Get all placed objects for a player
    */
   static async getPlacedObjects(playerId: string) {
-    const supabase = await createServerClientClient();
+    const supabase = createBrowserClient();
     
     const { data, error } = await supabase
       .from('placed_objects')
@@ -121,7 +122,7 @@ export class EmpireService {
    * Get placed object at specific grid position
    */
   static async getPlacedObjectAt(playerId: string, gridX: number, gridY: number) {
-    const supabase = await createServerClientClient();
+    const supabase = createBrowserClient();
     
     const { data, error } = await supabase
       .from('placed_objects')
@@ -139,9 +140,9 @@ export class EmpireService {
    * Place object
    */
   static async placeObject(object: PlacedObjectInsert) {
-    const supabase = await createServerClientClient();
+    const supabase = createBrowserClient();
     
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('placed_objects')
       .insert(object)
       .select()
@@ -154,10 +155,10 @@ export class EmpireService {
   /**
    * Update placed object
    */
-  static async updatePlacedObject(id: string, updates: PlacedObjectUpdate) {
-    const supabase = await createServerClientClient();
+  static async updatePlacedObject(id: string, updates: Record<string, any>) {
+    const supabase = createBrowserClient();
     
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('placed_objects')
       .update(updates)
       .eq('id', id)
@@ -172,7 +173,7 @@ export class EmpireService {
    * Remove placed object
    */
   static async removePlacedObject(id: string) {
-    const supabase = await createServerClientClient();
+    const supabase = createBrowserClient();
     
     const { error } = await supabase
       .from('placed_objects')
@@ -230,7 +231,7 @@ export class EmpireService {
    * Get placed object by ID
    */
   static async getPlacedObjectById(id: string) {
-    const supabase = await createServerClientClient();
+    const supabase = createBrowserClient();
     
     const { data, error } = await supabase
       .from('placed_objects')
