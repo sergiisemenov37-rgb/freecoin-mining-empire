@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import AnimatedBackground from './AnimatedBackground';
+import { AssetManager } from '@/lib/assets/AssetManager';
 
 interface PageLayoutProps {
   children: React.ReactNode;
@@ -24,22 +25,32 @@ export const PageLayout: React.FC<PageLayoutProps> = ({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
-        className={`min-h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 pb-24 ${className}`}
+        className={`min-h-screen pb-24 ${className}`}
       >
         {(title || showBackButton) && (
-          <div className="sticky top-0 z-30 bg-gray-950/80 backdrop-blur-lg border-b border-gray-800 px-4 py-4">
+          <div className="sticky top-0 z-30 glass-panel border-b border-cyan-500/30 px-4 py-4">
             <div className="flex items-center gap-4 max-w-lg mx-auto">
               {showBackButton && (
-                <button
+                <motion.button
                   onClick={onBackClick}
-                  className="p-2 -ml-2 text-gray-400 hover:text-white transition-colors"
+                  className="p-2 -ml-2 text-cyan-400 hover:text-cyan-300 transition-colors"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                    <path d="m15 18-6-6 6-6"/>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>
-                </button>
+                </motion.button>
               )}
-              {title && <h1 className="text-xl font-bold text-white">{title}</h1>}
+              {title && (
+                <motion.h1 
+                  className="text-xl font-bold text-white neon-text"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                >
+                  {title}
+                </motion.h1>
+              )}
             </div>
           </div>
         )}

@@ -68,157 +68,210 @@ export default function Friends() {
   return (
     <>
       <PageLayout title="Friends">
-        {/* Referral Section */}
-        <Card className="mb-4">
-          <CardHeader>
-            <CardTitle>Invite Friends</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <p className="text-gray-400 text-sm">
-                Invite friends and earn 10% of their mining rewards!
-              </p>
-              <div className="bg-gray-800 p-3 rounded-lg">
-                <p className="text-gray-400 text-xs mb-1">Your referral link:</p>
-                <p className="text-white text-sm font-mono break-all">{referralLink}</p>
+        {/* Referral Banner */}
+        <motion.div 
+          className="glass-panel p-5 mb-4 relative overflow-hidden"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 via-transparent to-purple-500/10" />
+          <div className="relative z-10">
+            <motion.div 
+              className="flex items-center gap-4 mb-4"
+              animate={{ 
+                x: [0, 5, 0]
+              }}
+              transition={{ duration: 3, repeat: Infinity }}
+            >
+              <motion.div
+                className="w-16 h-16 rounded-2xl overflow-hidden border-2 border-cyan-500/50 shadow-lg shadow-cyan-500/20"
+                whileHover={{ scale: 1.1, rotate: 5 }}
+                transition={{ type: 'spring' }}
+              >
+                <img src={AssetManager.navigation.FRIENDS} alt="Referral" className="w-full h-full object-cover" />
+              </motion.div>
+              <div>
+                <motion.h2 
+                  className="text-xl font-bold text-white neon-text"
+                  animate={{ 
+                    textShadow: ['0 0 10px #00d4ff', '0 0 20px #00d4ff', '0 0 10px #00d4ff']
+                  }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  Invite Friends
+                </motion.h2>
+                <p className="text-gray-400 text-sm">Earn rewards for each friend!</p>
               </div>
-              <Button onClick={handleInvite} variant="primary" className="w-full">
+            </motion.div>
+            <div className="bg-gray-900/50 border border-cyan-500/20 rounded-lg p-3 mb-3">
+              <p className="text-gray-400 text-xs mb-1">Your referral link:</p>
+              <p className="text-white text-sm font-mono break-all">{referralLink}</p>
+            </div>
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Button onClick={handleInvite} className="w-full" size="lg">
+                <img src={AssetManager.actions.install} alt="" className="w-5 h-5 mr-2" />
                 Copy Link & Invite
               </Button>
-            </div>
-          </CardContent>
-        </Card>
+            </motion.div>
+          </div>
+        </motion.div>
 
-        {/* Stats */}
-        <Card className="mb-4">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-around">
-              <motion.div 
-                className="text-center"
-                whileHover={{ scale: 1.1 }}
-                transition={{ type: 'spring' }}
-              >
-                <motion.p 
-                  className="text-white font-bold text-2xl"
-                  animate={{ 
-                    textShadow: ['0 0 10px rgba(34, 211, 238, 0.5)', '0 0 20px rgba(34, 211, 238, 0.8)', '0 0 10px rgba(34, 211, 238, 0.5)']
-                  }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                >
-                  <AnimatedCounter value={friends.length} />
-                </motion.p>
-                <p className="text-gray-400 text-xs">Friends</p>
-              </motion.div>
-              <motion.div 
-                className="text-center"
-                whileHover={{ scale: 1.1 }}
-                transition={{ type: 'spring' }}
-              >
-                <motion.p 
-                  className="text-white font-bold text-2xl"
-                  animate={{ 
-                    textShadow: ['0 0 10px rgba(250, 204, 21, 0.5)', '0 0 20px rgba(250, 204, 21, 0.8)', '0 0 10px rgba(250, 204, 21, 0.5)']
-                  }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                >
-                  <AnimatedCounter value={friendRequests.length} />
-                </motion.p>
-                <p className="text-gray-400 text-xs">Requests</p>
-              </motion.div>
-              <motion.div 
-                className="text-center"
-                whileHover={{ scale: 1.1 }}
-                transition={{ type: 'spring' }}
-              >
-                <motion.p 
-                  className="text-white font-bold text-2xl"
-                  animate={{ 
-                    textShadow: ['0 0 10px rgba(168, 85, 247, 0.5)', '0 0 20px rgba(168, 85, 247, 0.8)', '0 0 10px rgba(168, 85, 247, 0.5)']
-                  }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                >
-                  <AnimatedCounter value={0} />
-                </motion.p>
-                <p className="text-gray-400 text-xs">Referrals</p>
-              </motion.div>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Referral Statistics */}
+        <motion.div 
+          className="grid grid-cols-3 gap-3 mb-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+        >
+          <motion.div 
+            className="cyber-card p-3 text-center"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <motion.p 
+              className="text-white font-bold text-2xl neon-text"
+              animate={{ 
+                textShadow: ['0 0 10px #00d4ff', '0 0 20px #00d4ff', '0 0 10px #00d4ff']
+              }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              <AnimatedCounter value={friends.length} />
+            </motion.p>
+            <p className="text-gray-400 text-xs">Friends</p>
+          </motion.div>
+          <motion.div 
+            className="cyber-card p-3 text-center"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <motion.p 
+              className="text-white font-bold text-2xl"
+              animate={{ 
+                textShadow: ['0 0 10px #facc15', '0 0 20px #facc15', '0 0 10px #facc15']
+              }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              <AnimatedCounter value={friendRequests.length} />
+            </motion.p>
+            <p className="text-gray-400 text-xs">Requests</p>
+          </motion.div>
+          <motion.div 
+            className="cyber-card p-3 text-center"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <motion.p 
+              className="text-white font-bold text-2xl"
+              animate={{ 
+                textShadow: ['0 0 10px #9d4edd', '0 0 20px #9d4edd', '0 0 10px #9d4edd']
+              }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              <AnimatedCounter value={0} />
+            </motion.p>
+            <p className="text-gray-400 text-xs">Referrals</p>
+          </motion.div>
+        </motion.div>
 
         {/* Friend Requests */}
         {friendRequests.length > 0 && (
-          <Card className="mb-4">
-            <CardHeader>
-              <CardTitle>Friend Requests</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {friendRequests.map((request) => (
-                  <motion.div
-                    key={request.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="flex items-center justify-between p-3 bg-white/5 backdrop-blur border border-white/10 rounded-lg hover:border-cyan-500/50 transition-colors"
-                  >
-                    <div className="flex items-center gap-3">
-                      <motion.div 
-                        className="w-10 h-10 bg-gradient-to-br from-cyan-500 to-purple-600 rounded-full flex items-center justify-center overflow-hidden"
-                        whileHover={{ scale: 1.1, rotate: 5 }}
-                        transition={{ type: 'spring' }}
-                      >
-                        <img src={AssetManager.navigation.PROFILE} alt="Avatar" className="w-full h-full object-cover" />
-                      </motion.div>
-                      <div>
-                        <p className="text-white font-medium">{request.requester_username || 'Unknown'}</p>
-                        <p className="text-gray-400 text-xs">Wants to be friends</p>
-                      </div>
+          <motion.div 
+            className="glass-panel p-4 mb-4"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <motion.h2 
+              className="text-xl font-bold text-white neon-text mb-4"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+            >
+              Friend Requests
+            </motion.h2>
+            <div className="space-y-3">
+              {friendRequests.map((request) => (
+                <motion.div
+                  key={request.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="cyber-card p-3"
+                >
+                  <div className="flex items-center gap-3">
+                    <motion.div 
+                      className="w-12 h-12 rounded-xl overflow-hidden border-2 border-cyan-500/30 flex-shrink-0"
+                      whileHover={{ scale: 1.1, rotate: 5 }}
+                      transition={{ type: 'spring' }}
+                    >
+                      <img src={AssetManager.navigation.PROFILE} alt="Avatar" className="w-full h-full object-cover" />
+                    </motion.div>
+                    <div className="flex-1">
+                      <p className="text-white font-medium">{request.requester_username || 'Unknown'}</p>
+                      <p className="text-gray-400 text-xs">Wants to be friends</p>
                     </div>
                     <div className="flex gap-2">
                       <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                        <Button size="sm" variant="primary">
+                        <Button size="sm" variant="success">
                           Accept
                         </Button>
                       </motion.div>
                       <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                        <Button size="sm" variant="secondary">
+                        <Button size="sm" variant="danger">
                           Decline
                         </Button>
                       </motion.div>
                     </div>
-                  </motion.div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
         )}
 
         {/* Friends List */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Your Friends</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {friends.length > 0 ? (
-              <div className="space-y-3">
-                {friends.map((friend) => (
-                  <motion.div
-                    key={friend.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="flex items-center justify-between p-3 bg-white/5 backdrop-blur border border-white/10 rounded-lg hover:border-cyan-500/50 transition-colors"
-                  >
-                    <div className="flex items-center gap-3">
+        <motion.div 
+          className="glass-panel p-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <motion.h2 
+            className="text-xl font-bold text-white neon-text mb-4"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+          >
+            Your Friends
+          </motion.h2>
+          {friends.length > 0 ? (
+            <div className="space-y-3">
+              {friends.map((friend) => (
+                <motion.div
+                  key={friend.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="cyber-card p-3"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="relative">
                       <motion.div 
-                        className="w-10 h-10 bg-gradient-to-br from-cyan-500 to-purple-600 rounded-full flex items-center justify-center overflow-hidden"
+                        className="w-12 h-12 rounded-xl overflow-hidden border-2 border-cyan-500/30 flex-shrink-0"
                         whileHover={{ scale: 1.1, rotate: -5 }}
                         transition={{ type: 'spring' }}
                       >
                         <img src={AssetManager.navigation.PROFILE} alt="Avatar" className="w-full h-full object-cover" />
                       </motion.div>
-                      <div>
-                        <p className="text-white font-medium">{friend.friend_username || 'Unknown'}</p>
+                      <motion.div 
+                        className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-gray-900"
+                        animate={{ 
+                          boxShadow: ['0 0 5px #22c55e', '0 0 15px #22c55e', '0 0 5px #22c55e']
+                        }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-white font-medium">{friend.friend_username || 'Unknown'}</p>
+                      <div className="flex items-center gap-2">
                         <motion.p 
                           className="text-gray-400 text-xs"
                           animate={{ 
@@ -226,29 +279,48 @@ export default function Friends() {
                           }}
                           transition={{ duration: 2, repeat: Infinity }}
                         >
-                          {friend.status === 'accepted' ? 'Friend' : 'Pending'}
+                          {friend.status === 'accepted' ? 'Online' : 'Pending'}
                         </motion.p>
+                        <motion.div
+                          animate={{ 
+                            opacity: [0.5, 1, 0.5]
+                          }}
+                          transition={{ duration: 1.5, repeat: Infinity }}
+                        >
+                          <img src={AssetManager.resources.FREECOIN} alt="" className="w-3 h-3" />
+                        </motion.div>
+                        <span className="text-yellow-400 text-xs">+{Math.floor(Math.random() * 100)}/hr</span>
                       </div>
                     </div>
                     <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                      <Button size="sm" variant="ghost">
+                      <Button size="sm" variant="secondary">
+                        <img src={AssetManager.actions.search} alt="" className="w-4 h-4 mr-1" />
                         View
                       </Button>
                     </motion.div>
-                  </motion.div>
-                ))}
-              </div>
-            ) : (
-              <motion.div 
-                className="text-center py-8"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-              >
-                <p className="text-gray-400">No friends yet. Invite some!</p>
-              </motion.div>
-            )}
-          </CardContent>
-        </Card>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          ) : (
+            <motion.div 
+              className="text-center py-8"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              <motion.img
+                src={AssetManager.status.offline}
+                alt="No friends"
+                className="w-16 h-16 mx-auto mb-4"
+                animate={{ 
+                  scale: [1, 1.1, 1]
+                }}
+                transition={{ duration: 2, repeat: Infinity }}
+              />
+              <p className="text-gray-400">No friends yet. Invite some!</p>
+            </motion.div>
+          )}
+        </motion.div>
       </PageLayout>
       <BottomNavigation />
     </>

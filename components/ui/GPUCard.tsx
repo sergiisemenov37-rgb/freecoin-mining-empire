@@ -9,7 +9,7 @@ import { motion, useReducedMotion, useMotionValue, useTransform } from 'framer-m
 import { useRef, useState } from 'react';
 import { GPUCardConfig, createTransition } from '@/lib/ui/animationConfig';
 import Image from 'next/image';
-import { Assets } from '@/lib/assets';
+import { AssetManager } from '@/lib/assets/AssetManager';
 
 interface GPUCardProps {
   children: React.ReactNode;
@@ -111,7 +111,7 @@ export default function GPUCard({ children, rarity, className = '' }: GPUCardPro
       <div className="relative z-10 p-6">
         <div className="flex items-center gap-4">
           <Image 
-            src={Assets.hardware.gpu} 
+            src={AssetManager.hardware.GPU} 
             alt="GPU" 
             width={64} 
             height={64} 

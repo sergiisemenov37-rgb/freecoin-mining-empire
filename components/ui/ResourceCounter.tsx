@@ -9,7 +9,7 @@ import { motion, useReducedMotion, AnimatePresence, useMotionValue, useSpring } 
 import { useEffect, useRef, useState } from 'react';
 import { ResourceCounterConfig, createTransition } from '@/lib/ui/animationConfig';
 import Image from 'next/image';
-import { Assets } from '@/lib/assets';
+import { AssetManager } from '@/lib/assets/AssetManager';
 
 interface ResourceCounterProps {
   value: number;
@@ -101,7 +101,7 @@ export default function ResourceCounter({
       {/* Main counter */}
       <div className="flex items-center gap-2">
         <Image 
-          src={Assets.resources.freeCoin} 
+          src={AssetManager.resources.FREECOIN} 
           alt="FreeCoin" 
           width={24} 
           height={24} 

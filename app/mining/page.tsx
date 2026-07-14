@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { PageLayout } from '@/components/ui/PageLayout';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { BottomNavigation } from '@/components/ui/BottomNavigation';
+import { Button } from '@/components/ui/Button';
 import { Grid } from '@/lib/grid/Grid';
 import { TwoDRenderer } from '@/lib/grid/rendering/TwoDRenderer';
 import { BaseSize, ObjectType } from '@/lib/grid/types';
@@ -119,180 +120,316 @@ export default function Mining() {
     <>
       <PageLayout title="Mining">
         {/* Resource Balances */}
-        <Card className="mb-4">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <motion.div 
-                className="flex items-center gap-3"
-                whileHover={{ scale: 1.05 }}
-                transition={{ type: 'spring', stiffness: 300 }}
-              >
-                <motion.div
-                  animate={{ rotate: [0, 360] }}
-                  transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-                >
-                  <img src={AssetManager.resources.FREECOIN} alt="Coins" className="w-10 h-10" />
-                </motion.div>
-                <div>
-                  <p className="text-gray-400 text-xs">Coins</p>
-                  <p className="text-white font-bold text-lg"><AnimatedCounter value={0} /></p>
-                </div>
-              </motion.div>
-              <motion.div 
-                className="flex items-center gap-3"
-                whileHover={{ scale: 1.05 }}
-                transition={{ type: 'spring', stiffness: 300 }}
-              >
-                <motion.div
-                  animate={{ rotate: [0, -360] }}
-                  transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
-                >
-                  <img src={AssetManager.resources.PREMIUM_TOKEN} alt="Gems" className="w-10 h-10" />
-                </motion.div>
-                <div>
-                  <p className="text-gray-400 text-xs">Gems</p>
-                  <p className="text-white font-bold text-lg"><AnimatedCounter value={0} /></p>
-                </div>
-              </motion.div>
-              <motion.div 
-                className="flex items-center gap-3"
-                whileHover={{ scale: 1.05 }}
-                transition={{ type: 'spring', stiffness: 300 }}
-              >
-                <motion.div
-                  animate={{ 
-                    scale: [1, 1.1, 1],
-                    filter: ['brightness(1)', 'brightness(1.3)', 'brightness(1)']
-                  }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                >
-                  <img src={AssetManager.resources.BATTERY} alt="Energy" className="w-10 h-10" />
-                </motion.div>
-                <div>
-                  <p className="text-gray-400 text-xs">Energy</p>
-                  <p className="text-white font-bold text-lg"><AnimatedCounter value={100} /></p>
-                </div>
-              </motion.div>
-            </div>
-          </CardContent>
-        </Card>
+        <motion.div 
+          className="grid grid-cols-3 gap-3 mb-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <motion.div 
+            className="cyber-card p-3 text-center"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <motion.img
+              src={AssetManager.resources.FREECOIN}
+              alt="Coins"
+              className="w-10 h-10 mx-auto mb-2"
+              animate={{ rotate: [0, 360] }}
+              transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+            />
+            <motion.p 
+              className="text-white font-bold text-lg neon-text"
+              animate={{ 
+                textShadow: ['0 0 10px #00d4ff', '0 0 20px #00d4ff', '0 0 10px #00d4ff']
+              }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              <AnimatedCounter value={0} />
+            </motion.p>
+            <p className="text-gray-400 text-xs">Coins</p>
+          </motion.div>
+          <motion.div 
+            className="cyber-card p-3 text-center"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <motion.img
+              src={AssetManager.resources.PREMIUM_TOKEN}
+              alt="Gems"
+              className="w-10 h-10 mx-auto mb-2"
+              animate={{ rotate: [0, -360] }}
+              transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
+            />
+            <motion.p 
+              className="text-white font-bold text-lg"
+              animate={{ 
+                textShadow: ['0 0 10px #9d4edd', '0 0 20px #9d4edd', '0 0 10px #9d4edd']
+              }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              <AnimatedCounter value={0} />
+            </motion.p>
+            <p className="text-gray-400 text-xs">Premium</p>
+          </motion.div>
+          <motion.div 
+            className="cyber-card p-3 text-center"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <motion.img
+              src={AssetManager.resources.BATTERY}
+              alt="Energy"
+              className="w-10 h-10 mx-auto mb-2"
+              animate={{ 
+                scale: [1, 1.1, 1],
+                filter: ['brightness(1)', 'brightness(1.3)', 'brightness(1)']
+              }}
+              transition={{ duration: 2, repeat: Infinity }}
+            />
+            <motion.p 
+              className="text-white font-bold text-lg"
+              animate={{ 
+                textShadow: ['0 0 10px #00ff88', '0 0 20px #00ff88', '0 0 10px #00ff88']
+              }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              <AnimatedCounter value={100} />
+            </motion.p>
+            <p className="text-gray-400 text-xs">Energy</p>
+          </motion.div>
+        </motion.div>
 
         {/* Production Stats */}
-        <Card className="mb-4">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <motion.div 
-                className="text-center"
-                whileHover={{ scale: 1.1 }}
-                transition={{ type: 'spring' }}
-              >
-                <p className="text-gray-400 text-xs">Production Rate</p>
-                <motion.p 
-                  className="text-green-400 font-bold text-lg"
-                  animate={{ 
-                    textShadow: ['0 0 10px rgba(74, 222, 128, 0.5)', '0 0 20px rgba(74, 222, 128, 0.8)', '0 0 10px rgba(74, 222, 128, 0.5)']
-                  }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                >
-                  +<AnimatedCounter value={totalProduction} />/sec
-                </motion.p>
-              </motion.div>
-              <motion.div 
-                className="text-center"
-                whileHover={{ scale: 1.1 }}
-                transition={{ type: 'spring' }}
-              >
-                <p className="text-gray-400 text-xs">Active Buildings</p>
-                <p className="text-white font-bold text-lg"><AnimatedCounter value={placedObjects.filter((o: any) => o.status === 'active').length} /></p>
-              </motion.div>
-              <motion.div 
-                className="text-center"
-                whileHover={{ scale: 1.1 }}
-                transition={{ type: 'spring' }}
-              >
-                <p className="text-gray-400 text-xs">Empire Level</p>
-                <motion.p 
-                  className="text-yellow-400 font-bold text-lg"
-                  animate={{ 
-                    scale: [1, 1.05, 1],
-                    textShadow: ['0 0 10px rgba(250, 204, 21, 0.5)', '0 0 20px rgba(250, 204, 21, 0.8)', '0 0 10px rgba(250, 204, 21, 0.5)']
-                  }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                >
-                  <AnimatedCounter value={empire?.level || 1} />
-                </motion.p>
-              </motion.div>
-            </div>
-          </CardContent>
-        </Card>
+        <motion.div 
+          className="grid grid-cols-3 gap-3 mb-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+        >
+          <motion.div 
+            className="cyber-card p-3 text-center"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <p className="text-gray-400 text-xs mb-1">Production</p>
+            <motion.p 
+              className="text-green-400 font-bold text-lg neon-text"
+              animate={{ 
+                textShadow: ['0 0 10px #00ff88', '0 0 30px #00ff88', '0 0 10px #00ff88']
+              }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              +<AnimatedCounter value={totalProduction} />/sec
+            </motion.p>
+          </motion.div>
+          <motion.div 
+            className="cyber-card p-3 text-center"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <p className="text-gray-400 text-xs mb-1">Storage</p>
+            <motion.p 
+              className="text-blue-400 font-bold text-lg"
+              animate={{ 
+                textShadow: ['0 0 10px #0066ff', '0 0 20px #0066ff', '0 0 10px #0066ff']
+              }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              <AnimatedCounter value={0} />
+            </motion.p>
+          </motion.div>
+          <motion.div 
+            className="cyber-card p-3 text-center"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <p className="text-gray-400 text-xs mb-1">Power</p>
+            <motion.p 
+              className="text-yellow-400 font-bold text-lg"
+              animate={{ 
+                textShadow: ['0 0 10px #facc15', '0 0 20px #facc15', '0 0 10px #facc15']
+              }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              <AnimatedCounter value={0} />
+            </motion.p>
+          </motion.div>
+        </motion.div>
 
         {/* Empire Grid */}
-        <Card className="mb-4">
-          <CardHeader>
-            <CardTitle>Your Empire</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex justify-center bg-gray-900 rounded-lg overflow-hidden">
-              <canvas
-                ref={canvasRef}
-                className="max-w-full"
-              />
-            </div>
-          </CardContent>
-        </Card>
+        <motion.div 
+          className="glass-panel p-4 mb-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <motion.h2 
+            className="text-xl font-bold text-white neon-text mb-4"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+          >
+            Your Empire
+          </motion.h2>
+          <div className="flex justify-center bg-gradient-to-br from-gray-900/50 to-gray-800/50 rounded-xl overflow-hidden border border-cyan-500/20">
+            <canvas
+              ref={canvasRef}
+              className="max-w-full"
+            />
+          </div>
+        </motion.div>
+
+        {/* Action Buttons */}
+        <motion.div 
+          className="grid grid-cols-4 gap-2 mb-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+            <Button variant="primary" className="w-full" size="sm">
+              <img src={AssetManager.actions.build} alt="" className="w-4 h-4 mr-1" />
+              Build
+            </Button>
+          </motion.div>
+          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+            <Button variant="secondary" className="w-full" size="sm">
+              <img src={AssetManager.actions.move} alt="" className="w-4 h-4 mr-1" />
+              Move
+            </Button>
+          </motion.div>
+          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+            <Button variant="secondary" className="w-full" size="sm">
+              <img src={AssetManager.actions.upgrade} alt="" className="w-4 h-4 mr-1" />
+              Upgrade
+            </Button>
+          </motion.div>
+          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+            <Button variant="success" className="w-full" size="sm">
+              <img src={AssetManager.actions.collect} alt="" className="w-4 h-4 mr-1" />
+              Collect
+            </Button>
+          </motion.div>
+        </motion.div>
 
         {/* Building Selection */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Build</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-3 gap-2">
-              <motion.button 
-                className="p-3 bg-white/5 backdrop-blur border border-white/10 rounded-lg hover:border-cyan-500/50 transition-colors"
-                whileHover={{ scale: 1.05, y: -5 }}
-                whileTap={{ scale: 0.95 }}
+        <motion.div 
+          className="glass-panel p-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          <motion.h2 
+            className="text-xl font-bold text-white neon-text mb-4"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+          >
+            Build Structures
+          </motion.h2>
+          <div className="grid grid-cols-3 gap-3">
+            <motion.button 
+              className="cyber-card p-3 text-center"
+              whileHover={{ scale: 1.05, y: -5 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <motion.div
+                animate={{ y: [0, -5, 0] }}
+                transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
               >
-                <motion.div
-                  animate={{ y: [0, -5, 0] }}
-                  transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-                >
-                  <img src={AssetManager.buildings.FACTORY} alt="Factory" className="w-12 h-12 mx-auto mb-1" />
-                </motion.div>
-                <div className="text-white text-xs">Factory</div>
-                <div className="text-yellow-400 text-xs">100 coins</div>
-              </motion.button>
-              <motion.button 
-                className="p-3 bg-white/5 backdrop-blur border border-white/10 rounded-lg hover:border-cyan-500/50 transition-colors"
-                whileHover={{ scale: 1.05, y: -5 }}
-                whileTap={{ scale: 0.95 }}
+                <img src={AssetManager.buildings.FACTORY} alt="Factory" className="w-14 h-14 mx-auto mb-2" />
+              </motion.div>
+              <div className="text-white text-sm font-medium">Factory</div>
+              <div className="text-yellow-400 text-xs flex items-center justify-center gap-1">
+                <img src={AssetManager.resources.FREECOIN} alt="" className="w-3 h-3" />
+                100
+              </div>
+            </motion.button>
+            <motion.button 
+              className="cyber-card p-3 text-center"
+              whileHover={{ scale: 1.05, y: -5 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <motion.div
+                animate={{ y: [0, -5, 0] }}
+                transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
               >
-                <motion.div
-                  animate={{ y: [0, -5, 0] }}
-                  transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
-                >
-                  <img src={AssetManager.buildings.POWER_STATION} alt="Mine" className="w-12 h-12 mx-auto mb-1" />
-                </motion.div>
-                <div className="text-white text-xs">Mine</div>
-                <div className="text-yellow-400 text-xs">250 coins</div>
-              </motion.button>
-              <motion.button 
-                className="p-3 bg-white/5 backdrop-blur border border-white/10 rounded-lg hover:border-cyan-500/50 transition-colors"
-                whileHover={{ scale: 1.05, y: -5 }}
-                whileTap={{ scale: 0.95 }}
+                <img src={AssetManager.buildings.POWER_STATION} alt="Power Station" className="w-14 h-14 mx-auto mb-2" />
+              </motion.div>
+              <div className="text-white text-sm font-medium">Power Station</div>
+              <div className="text-yellow-400 text-xs flex items-center justify-center gap-1">
+                <img src={AssetManager.resources.FREECOIN} alt="" className="w-3 h-3" />
+                250
+              </div>
+            </motion.button>
+            <motion.button 
+              className="cyber-card p-3 text-center"
+              whileHover={{ scale: 1.05, y: -5 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <motion.div
+                animate={{ y: [0, -5, 0] }}
+                transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
               >
-                <motion.div
-                  animate={{ y: [0, -5, 0] }}
-                  transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-                >
-                  <img src={AssetManager.buildings.WAREHOUSE} alt="Battery" className="w-12 h-12 mx-auto mb-1" />
-                </motion.div>
-                <div className="text-white text-xs">Battery</div>
-                <div className="text-yellow-400 text-xs">500 coins</div>
-              </motion.button>
-            </div>
-          </CardContent>
-        </Card>
+                <img src={AssetManager.buildings.WAREHOUSE} alt="Warehouse" className="w-14 h-14 mx-auto mb-2" />
+              </motion.div>
+              <div className="text-white text-sm font-medium">Warehouse</div>
+              <div className="text-yellow-400 text-xs flex items-center justify-center gap-1">
+                <img src={AssetManager.resources.FREECOIN} alt="" className="w-3 h-3" />
+                500
+              </div>
+            </motion.button>
+            <motion.button 
+              className="cyber-card p-3 text-center"
+              whileHover={{ scale: 1.05, y: -5 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <motion.div
+                animate={{ y: [0, -5, 0] }}
+                transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
+              >
+                <img src={AssetManager.buildings.RESEARCH_LAB} alt="Research Lab" className="w-14 h-14 mx-auto mb-2" />
+              </motion.div>
+              <div className="text-white text-sm font-medium">Research Lab</div>
+              <div className="text-yellow-400 text-xs flex items-center justify-center gap-1">
+                <img src={AssetManager.resources.FREECOIN} alt="" className="w-3 h-3" />
+                750
+              </div>
+            </motion.button>
+            <motion.button 
+              className="cyber-card p-3 text-center"
+              whileHover={{ scale: 1.05, y: -5 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <motion.div
+                animate={{ y: [0, -5, 0] }}
+                transition={{ duration: 3.8, repeat: Infinity, ease: 'easeInOut' }}
+              >
+                <img src={AssetManager.buildings.GARAGE} alt="Garage" className="w-14 h-14 mx-auto mb-2" />
+              </motion.div>
+              <div className="text-white text-sm font-medium">Garage</div>
+              <div className="text-yellow-400 text-xs flex items-center justify-center gap-1">
+                <img src={AssetManager.resources.FREECOIN} alt="" className="w-3 h-3" />
+                1000
+              </div>
+            </motion.button>
+            <motion.button 
+              className="cyber-card p-3 text-center"
+              whileHover={{ scale: 1.05, y: -5 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <motion.div
+                animate={{ y: [0, -5, 0] }}
+                transition={{ duration: 4.2, repeat: Infinity, ease: 'easeInOut' }}
+              >
+                <img src={AssetManager.buildings.WORKSHOP} alt="Workshop" className="w-14 h-14 mx-auto mb-2" />
+              </motion.div>
+              <div className="text-white text-sm font-medium">Workshop</div>
+              <div className="text-yellow-400 text-xs flex items-center justify-center gap-1">
+                <img src={AssetManager.resources.FREECOIN} alt="" className="w-3 h-3" />
+                1500
+              </div>
+            </motion.button>
+          </div>
+        </motion.div>
       </PageLayout>
       <BottomNavigation />
     </>

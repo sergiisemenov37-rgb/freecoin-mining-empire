@@ -8,7 +8,7 @@
 import { motion, useReducedMotion, AnimatePresence } from 'framer-motion';
 import { BuildingCardConfig, createTransition } from '@/lib/ui/animationConfig';
 import Image from 'next/image';
-import { Assets } from '@/lib/assets';
+import { AssetManager } from '@/lib/assets/AssetManager';
 
 interface BuildingCardProps {
   children: React.ReactNode;
@@ -118,7 +118,7 @@ export default function BuildingCard({
             }}
           >
             <Image 
-              src={Assets.status.locked} 
+              src={AssetManager.status.locked} 
               alt="Locked" 
               width={64} 
               height={64} 
@@ -132,7 +132,7 @@ export default function BuildingCard({
       <div className="relative z-10 p-6">
         <div className="flex items-center gap-4">
           <Image 
-            src={Assets.buildings.starterRoom} 
+            src={AssetManager.buildings.STARTER_ROOM} 
             alt="Building" 
             width={64} 
             height={64} 
