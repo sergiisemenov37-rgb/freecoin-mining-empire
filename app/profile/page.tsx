@@ -11,6 +11,8 @@ import { useSession } from '@/hooks/useSession';
 import { playerService } from '@/services/PlayerService';
 import { EmpireService } from '@/lib/supabase/services/empireService';
 import { AssetManager } from '@/lib/assets/AssetManager';
+import { motion } from 'framer-motion';
+import AnimatedCounter from '@/components/ui/AnimatedCounter';
 
 export default function Profile() {
   const { session } = useSession();
@@ -61,15 +63,32 @@ export default function Profile() {
         {/* Profile Header */}
         <Card className="mb-4">
           <CardContent className="p-4">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center overflow-hidden">
+            <motion.div 
+              className="flex items-center gap-4"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <motion.div 
+                className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-purple-600 rounded-full flex items-center justify-center overflow-hidden"
+                whileHover={{ scale: 1.1, rotate: 5 }}
+                transition={{ type: 'spring' }}
+              >
                 <img src={AssetManager.navigation.PROFILE} alt="Avatar" className="w-full h-full object-cover" />
-              </div>
+              </motion.div>
               <div className="flex-1">
-                <h2 className="text-white font-bold text-lg">{session?.username || 'Player'}</h2>
+                <motion.h2 
+                  className="text-white font-bold text-lg"
+                  animate={{ 
+                    textShadow: ['0 0 10px rgba(34, 211, 238, 0.5)', '0 0 20px rgba(34, 211, 238, 0.8)', '0 0 10px rgba(34, 211, 238, 0.5)']
+                  }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  {session?.username || 'Player'}
+                </motion.h2>
                 <p className="text-gray-400 text-sm">ID: {session?.player_id?.slice(0, 8)}...</p>
               </div>
-            </div>
+            </motion.div>
           </CardContent>
         </Card>
 
@@ -80,22 +99,70 @@ export default function Profile() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-4">
-              <div className="p-3 bg-gray-800 rounded-lg">
+              <motion.div 
+                className="p-3 bg-white/5 backdrop-blur border border-white/10 rounded-lg"
+                whileHover={{ scale: 1.05, borderColor: 'rgba(34, 211, 238, 0.5)' }}
+                transition={{ type: 'spring' }}
+              >
                 <p className="text-gray-400 text-xs">Empire Level</p>
-                <p className="text-white font-bold text-xl">{empire?.level || 1}</p>
-              </div>
-              <div className="p-3 bg-gray-800 rounded-lg">
+                <motion.p 
+                  className="text-white font-bold text-xl"
+                  animate={{ 
+                    textShadow: ['0 0 10px rgba(34, 211, 238, 0.5)', '0 0 20px rgba(34, 211, 238, 0.8)', '0 0 10px rgba(34, 211, 238, 0.5)']
+                  }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  <AnimatedCounter value={empire?.level || 1} />
+                </motion.p>
+              </motion.div>
+              <motion.div 
+                className="p-3 bg-white/5 backdrop-blur border border-white/10 rounded-lg"
+                whileHover={{ scale: 1.05, borderColor: 'rgba(74, 222, 128, 0.5)' }}
+                transition={{ type: 'spring' }}
+              >
                 <p className="text-gray-400 text-xs">Experience</p>
-                <p className="text-white font-bold text-xl">{empire?.experience || 0}</p>
-              </div>
-              <div className="p-3 bg-gray-800 rounded-lg">
+                <motion.p 
+                  className="text-white font-bold text-xl"
+                  animate={{ 
+                    textShadow: ['0 0 10px rgba(74, 222, 128, 0.5)', '0 0 20px rgba(74, 222, 128, 0.8)', '0 0 10px rgba(74, 222, 128, 0.5)']
+                  }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  <AnimatedCounter value={empire?.experience || 0} />
+                </motion.p>
+              </motion.div>
+              <motion.div 
+                className="p-3 bg-white/5 backdrop-blur border border-white/10 rounded-lg"
+                whileHover={{ scale: 1.05, borderColor: 'rgba(250, 204, 21, 0.5)' }}
+                transition={{ type: 'spring' }}
+              >
                 <p className="text-gray-400 text-xs">Buildings</p>
-                <p className="text-white font-bold text-xl">0</p>
-              </div>
-              <div className="p-3 bg-gray-800 rounded-lg">
+                <motion.p 
+                  className="text-white font-bold text-xl"
+                  animate={{ 
+                    textShadow: ['0 0 10px rgba(250, 204, 21, 0.5)', '0 0 20px rgba(250, 204, 21, 0.8)', '0 0 10px rgba(250, 204, 21, 0.5)']
+                  }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  <AnimatedCounter value={0} />
+                </motion.p>
+              </motion.div>
+              <motion.div 
+                className="p-3 bg-white/5 backdrop-blur border border-white/10 rounded-lg"
+                whileHover={{ scale: 1.05, borderColor: 'rgba(168, 85, 247, 0.5)' }}
+                transition={{ type: 'spring' }}
+              >
                 <p className="text-gray-400 text-xs">Friends</p>
-                <p className="text-white font-bold text-xl">0</p>
-              </div>
+                <motion.p 
+                  className="text-white font-bold text-xl"
+                  animate={{ 
+                    textShadow: ['0 0 10px rgba(168, 85, 247, 0.5)', '0 0 20px rgba(168, 85, 247, 0.8)', '0 0 10px rgba(168, 85, 247, 0.5)']
+                  }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  <AnimatedCounter value={0} />
+                </motion.p>
+              </motion.div>
             </div>
           </CardContent>
         </Card>

@@ -8,6 +8,8 @@ import { cosmeticStore } from '@/lib/cosmetics/CosmeticStore';
 import { CosmeticCategory, CosmeticRarity } from '@/lib/cosmetics/CosmeticTypes';
 import { useState } from 'react';
 import { AssetManager } from '@/lib/assets/AssetManager';
+import { motion } from 'framer-motion';
+import RarityBadge from '@/components/ui/RarityBadge';
 
 export default function Shop() {
   const [selectedCategory, setSelectedCategory] = useState<CosmeticCategory>(CosmeticCategory.AVATAR);
@@ -20,33 +22,18 @@ export default function Shop() {
     { key: CosmeticCategory.BADGE, label: 'Badges' },
   ];
 
-  const getRarityColor = (rarity: CosmeticRarity) => {
+  const getRarityGlow = (rarity: CosmeticRarity) => {
     switch (rarity) {
       case CosmeticRarity.COMMON:
-        return 'text-gray-400';
+        return 'shadow-gray-500/30';
       case CosmeticRarity.UNCOMMON:
-        return 'text-green-400';
+        return 'shadow-green-500/50';
       case CosmeticRarity.RARE:
-        return 'text-blue-400';
+        return 'shadow-blue-500/50';
       case CosmeticRarity.EPIC:
-        return 'text-purple-400';
+        return 'shadow-purple-500/50';
       case CosmeticRarity.LEGENDARY:
-        return 'text-yellow-400';
-    }
-  };
-
-  const getRarityBorder = (rarity: CosmeticRarity) => {
-    switch (rarity) {
-      case CosmeticRarity.COMMON:
-        return 'border-gray-600';
-      case CosmeticRarity.UNCOMMON:
-        return 'border-green-600';
-      case CosmeticRarity.RARE:
-        return 'border-blue-600';
-      case CosmeticRarity.EPIC:
-        return 'border-purple-600';
-      case CosmeticRarity.LEGENDARY:
-        return 'border-yellow-600';
+        return 'shadow-yellow-500/50';
     }
   };
 
@@ -76,34 +63,59 @@ export default function Shop() {
 
         <div className="grid grid-cols-2 gap-3">
           {items.map((item) => (
-            <Card
+            <motion.div
               key={item.id}
-              className={`border-2 ${getRarityBorder(item.rarity)} hover:scale-105 transition-transform flex flex-col`}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3 }}
             >
-              <CardContent className="p-3 flex-1 flex flex-col">
-                <div className="aspect-square bg-gray-800 rounded-lg mb-2 flex items-center justify-center flex-shrink-0 overflow-hidden">
-                  <img src={AssetManager.buildings.FACTORY} alt={item.name} className="w-full h-full object-cover" />
-                </div>
-                <h3 className="text-white font-medium text-sm mb-1 line-clamp-2">{item.name}</h3>
-                <p className={`text-xs ${getRarityColor(item.rarity)} capitalize mb-2`}>
-                  {item.rarity}
-                </p>
-                <div className="flex items-center justify-between mt-auto">
-                  <span className="text-white text-sm font-bold">
-                    {item.price} {item.currency}
-                  </span>
-                  <Button size="sm" variant="primary" className="text-xs">
-                    Buy
-                  </Button>
-                </div>
-                {item.isLimited && (
-                  <p className="text-yellow-400 text-xs mt-2">Limited</p>
-                )}
-                {item.isExclusive && (
-                  <p className="text-purple-400 text-xs mt-2">Exclusive</p>
-                )}
-              </CardContent>
-            </Card>
+              <Card
+                glow={false}
+                className={`border-2 border-white/10 hover:border-cyan-500/50 transition-all flex flex-col ${getRarityGlow(item.rarity)}`}
+              >
+                <CardContent className="p-3 flex-1 flex flex-col">
+                  <motion.div 
+                    className="aspect-square bg-white/5 backdrop-blur rounded-lg mb-2 flex items-center justify-center flex-shrink-0 overflow-hidden"
+                    whileHover={{ scale: 1.05 }}
+                    transition={{ type: 'spring' }}
+                  >
+                    <img src={AssetManager.buildings.FACTORY} alt={item.name} className="w-full h-full object-cover" />
+                  </motion.div>
+                  <h3 className="text-white font-medium text-sm mb-1 line-clamp-2">{item.name}</h3>
+                  <div className="mb-2">
+                    <RarityBadge rarity={item.rarity as any}>{item.rarity}</RarityBadge>
+                  </div>
+                  <div className="flex items-center justify-between mt-auto">
+                    <span className="text-white text-sm font-bold">
+                      {item.price} {item.currency}
+                    </span>
+                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                      <Button size="sm" variant="primary" className="text-xs">
+                        Buy
+                      </Button>
+                    </motion.div>
+                  </div>
+                  {item.isLimited && (
+                    <motion.p 
+                      className="text-yellow-400 text-xs mt-2"
+                      animate={{ opacity: [0.5, 1, 0.5] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    >
+                      Limited
+                    </motion.p>
+                  )}
+                  {item.isExclusive && (
+                    <motion.p 
+                      className="text-purple-400 text-xs mt-2"
+                      animate={{ opacity: [0.5, 1, 0.5] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    >
+                      Exclusive
+                    </motion.p>
+                  )}
+                </CardContent>
+              </Card>
+            </motion.div>
           ))}
         </div>
 

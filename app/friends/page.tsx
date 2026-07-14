@@ -8,6 +8,8 @@ import { BottomNavigation } from '@/components/ui/BottomNavigation';
 import { friendService } from '@/services/FriendService';
 import { useSession } from '@/hooks/useSession';
 import { AssetManager } from '@/lib/assets/AssetManager';
+import { motion } from 'framer-motion';
+import AnimatedCounter from '@/components/ui/AnimatedCounter';
 
 export default function Friends() {
   const { session } = useSession();
@@ -91,18 +93,54 @@ export default function Friends() {
         <Card className="mb-4">
           <CardContent className="p-4">
             <div className="flex items-center justify-around">
-              <div className="text-center">
-                <p className="text-white font-bold text-2xl">{friends.length}</p>
+              <motion.div 
+                className="text-center"
+                whileHover={{ scale: 1.1 }}
+                transition={{ type: 'spring' }}
+              >
+                <motion.p 
+                  className="text-white font-bold text-2xl"
+                  animate={{ 
+                    textShadow: ['0 0 10px rgba(34, 211, 238, 0.5)', '0 0 20px rgba(34, 211, 238, 0.8)', '0 0 10px rgba(34, 211, 238, 0.5)']
+                  }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  <AnimatedCounter value={friends.length} />
+                </motion.p>
                 <p className="text-gray-400 text-xs">Friends</p>
-              </div>
-              <div className="text-center">
-                <p className="text-white font-bold text-2xl">{friendRequests.length}</p>
+              </motion.div>
+              <motion.div 
+                className="text-center"
+                whileHover={{ scale: 1.1 }}
+                transition={{ type: 'spring' }}
+              >
+                <motion.p 
+                  className="text-white font-bold text-2xl"
+                  animate={{ 
+                    textShadow: ['0 0 10px rgba(250, 204, 21, 0.5)', '0 0 20px rgba(250, 204, 21, 0.8)', '0 0 10px rgba(250, 204, 21, 0.5)']
+                  }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  <AnimatedCounter value={friendRequests.length} />
+                </motion.p>
                 <p className="text-gray-400 text-xs">Requests</p>
-              </div>
-              <div className="text-center">
-                <p className="text-white font-bold text-2xl">0</p>
+              </motion.div>
+              <motion.div 
+                className="text-center"
+                whileHover={{ scale: 1.1 }}
+                transition={{ type: 'spring' }}
+              >
+                <motion.p 
+                  className="text-white font-bold text-2xl"
+                  animate={{ 
+                    textShadow: ['0 0 10px rgba(168, 85, 247, 0.5)', '0 0 20px rgba(168, 85, 247, 0.8)', '0 0 10px rgba(168, 85, 247, 0.5)']
+                  }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  <AnimatedCounter value={0} />
+                </motion.p>
                 <p className="text-gray-400 text-xs">Referrals</p>
-              </div>
+              </motion.div>
             </div>
           </CardContent>
         </Card>
@@ -116,25 +154,39 @@ export default function Friends() {
             <CardContent>
               <div className="space-y-3">
                 {friendRequests.map((request) => (
-                  <div key={request.id} className="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                  <motion.div
+                    key={request.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="flex items-center justify-between p-3 bg-white/5 backdrop-blur border border-white/10 rounded-lg hover:border-cyan-500/50 transition-colors"
+                  >
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center overflow-hidden">
+                      <motion.div 
+                        className="w-10 h-10 bg-gradient-to-br from-cyan-500 to-purple-600 rounded-full flex items-center justify-center overflow-hidden"
+                        whileHover={{ scale: 1.1, rotate: 5 }}
+                        transition={{ type: 'spring' }}
+                      >
                         <img src={AssetManager.navigation.PROFILE} alt="Avatar" className="w-full h-full object-cover" />
-                      </div>
+                      </motion.div>
                       <div>
                         <p className="text-white font-medium">{request.requester_username || 'Unknown'}</p>
                         <p className="text-gray-400 text-xs">Wants to be friends</p>
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      <Button size="sm" variant="primary">
-                        Accept
-                      </Button>
-                      <Button size="sm" variant="secondary">
-                        Decline
-                      </Button>
+                      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                        <Button size="sm" variant="primary">
+                          Accept
+                        </Button>
+                      </motion.div>
+                      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                        <Button size="sm" variant="secondary">
+                          Decline
+                        </Button>
+                      </motion.div>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             </CardContent>
@@ -150,28 +202,50 @@ export default function Friends() {
             {friends.length > 0 ? (
               <div className="space-y-3">
                 {friends.map((friend) => (
-                  <div key={friend.id} className="flex items-center justify-between p-3 bg-gray-800 rounded-lg">
+                  <motion.div
+                    key={friend.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="flex items-center justify-between p-3 bg-white/5 backdrop-blur border border-white/10 rounded-lg hover:border-cyan-500/50 transition-colors"
+                  >
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center overflow-hidden">
+                      <motion.div 
+                        className="w-10 h-10 bg-gradient-to-br from-cyan-500 to-purple-600 rounded-full flex items-center justify-center overflow-hidden"
+                        whileHover={{ scale: 1.1, rotate: -5 }}
+                        transition={{ type: 'spring' }}
+                      >
                         <img src={AssetManager.navigation.PROFILE} alt="Avatar" className="w-full h-full object-cover" />
-                      </div>
+                      </motion.div>
                       <div>
                         <p className="text-white font-medium">{friend.friend_username || 'Unknown'}</p>
-                        <p className="text-gray-400 text-xs">
+                        <motion.p 
+                          className="text-gray-400 text-xs"
+                          animate={{ 
+                            color: friend.status === 'accepted' ? ['#9ca3af', '#22c55e', '#9ca3af'] : ['#9ca3af', '#eab308', '#9ca3af']
+                          }}
+                          transition={{ duration: 2, repeat: Infinity }}
+                        >
                           {friend.status === 'accepted' ? 'Friend' : 'Pending'}
-                        </p>
+                        </motion.p>
                       </div>
                     </div>
-                    <Button size="sm" variant="ghost">
-                      View
-                    </Button>
-                  </div>
+                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                      <Button size="sm" variant="ghost">
+                        View
+                      </Button>
+                    </motion.div>
+                  </motion.div>
                 ))}
               </div>
             ) : (
-              <div className="text-center py-8">
+              <motion.div 
+                className="text-center py-8"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+              >
                 <p className="text-gray-400">No friends yet. Invite some!</p>
-              </div>
+              </motion.div>
             )}
           </CardContent>
         </Card>
